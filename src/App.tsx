@@ -1,4 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { Analytics } from '@vercel/analytics/react'
+import { Capacitor } from '@capacitor/core'
+import { scrubAnalyticsEvent } from './lib/analytics.ts'
 import { AppShell } from './components/AppShell.tsx'
 import { RequireAuth } from './auth/RequireAuth.tsx'
 import { isSupabaseConfigured } from './lib/supabase.ts'
@@ -25,6 +28,8 @@ import { ReportsPage } from './pages/admin/ReportsPage.tsx'
 export default function App() {
   return (
     <>
+      {/* Web only: the Android app has no /_vercel endpoint to report to. */}
+      {!Capacitor.isNativePlatform() && <Analytics beforeSend={scrubAnalyticsEvent} />}
       {isSupabaseConfigured && <IdleLogout />}
       {isSupabaseConfigured ? (
         <Routes>
