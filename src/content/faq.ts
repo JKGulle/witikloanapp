@@ -282,7 +282,7 @@ export const FAQ: FaqSection[] = [
       {
         q: 'Who can see my ID and selfie?',
         a: [
-          'Only you and Witik staff who check identities: administrators, and credit investigators while your verification is being reviewed or your application is assigned to them. Photos are stored privately and are never public. They’re resized on your device before upload, which also removes most hidden photo data such as location.',
+          'Only you and the Witik staff who check identities: administrators and credit investigators. Cashiers and other borrowers can’t see them. Photos are stored privately and are never public. They’re resized on your device before upload, which also removes most hidden photo data such as location.',
         ],
       },
     ],
@@ -386,7 +386,7 @@ export const FAQ: FaqSection[] = [
         a: [
           [
             'Admin — overview metrics, assign credit investigators, approve or reject applications, verify identities, add or deactivate staff, and read the audit log. Admins can also release loans and record payments as a backup for cashiers.',
-            'Credit Investigator — reviews pending identity verifications (ID and selfie) from the Verifications tab, sees only applications assigned to them, and files an investigation report (employment, income and residence checks, risk rating and recommendation).',
+            'Credit Investigator — verifies borrowers’ identities (ID and selfie) from the Verifications tab, with the same verification powers as admins; sees only loan applications assigned to them, and files an investigation report (employment, income and residence checks, risk rating and recommendation).',
             'Cashier — releases approved loans to borrowers and accepts their monthly payments (including penalties). Cashiers see only approved, active and paid loans — not pending applications, ID photos or investigation reports. Every release and payment records which cashier handled it.',
           ],
         ],

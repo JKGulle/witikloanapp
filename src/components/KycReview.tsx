@@ -87,7 +87,7 @@ export function KycReview({
             <Button
               variant="danger"
               loading={busy === 'rejected'}
-              disabled={!reason.trim()}
+              disabled={!reason.trim() || status === 'rejected'}
               onClick={() => void decide('rejected')}
             >
               Reject KYC

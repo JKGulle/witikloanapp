@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { supabase } from '../../lib/supabase.ts'
-import { useAuth } from '../../auth/auth-context.ts'
 import { unwrap, useQuery } from '../../hooks/useQuery.ts'
 import { idTypeLabel } from '../../lib/kyc.ts'
 import { EMPLOYMENT_LABELS, formatDateTime } from '../../lib/staff.ts'
@@ -98,10 +97,9 @@ export function VerificationsPage() {
 /** One borrower's documents and details side by side, with verify / reject. */
 export function VerificationDetailPage() {
   const { userId = '' } = useParams()
-  const { role } = useAuth()
   const { data, error, loading, reload } = useQuery(async () => {
     const found = unwrap(await supabase.from('profiles').select('*').eq('id', userId).maybeSingle()) as Profile | null
-    if (!found) throw new Error('This verification is no longer waiting for review, or you do not have access to it.')
+    if (!found) throw new Error('Borrower not found, or they have not submitted an ID yet.')
     return found
   }, [userId])
 
@@ -122,8 +120,6 @@ export function VerificationDetailPage() {
   }
 
   const profile = data
-  // Investigators may decide pending checks; once decided only an admin can change it.
-  const canReview = role === 'admin' || profile.kyc_status === 'pending'
 
   return (
     <div className="stack-lg">
@@ -157,10 +153,8 @@ export function VerificationDetailPage() {
         </Card>
 
         <Card className="stack kyc-standalone">
-          <KycReview userId={profile.id} status={profile.kyc_status} canReview={canReview} onChanged={reload} />
-          {!canReview && (
-            <p className="muted small">This check has been decided. Only an admin can change it.</p>
-          )}
+          {/* Only admins and credit investigators reach this page; both can decide any check. */}
+          <KycReview userId={profile.id} status={profile.kyc_status} canReview onChanged={reload} />
         </Card>
       </div>
     </div>

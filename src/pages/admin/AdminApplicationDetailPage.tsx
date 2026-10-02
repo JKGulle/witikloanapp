@@ -164,7 +164,12 @@ export function AdminApplicationDetailPage() {
             </dd>
           </dl>
           {profile && role !== 'cashier' && (
-            <KycReview userId={app.user_id} status={profile.kyc_status} canReview={canInvestigate} onChanged={reload} />
+            <KycReview
+              userId={app.user_id}
+              status={profile.kyc_status}
+              canReview={role === 'admin' || role === 'credit_investigator'}
+              onChanged={reload}
+            />
           )}
         </Card>
       </div>
