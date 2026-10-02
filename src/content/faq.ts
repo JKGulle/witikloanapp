@@ -1,5 +1,5 @@
 import { LOAN_LIMITS, annualRateFor, formatMoney, loanQuote } from '../lib/loan.ts'
-import { PENALTY_PER_DAY } from '../lib/penalty.ts'
+import { PENALTY_PER_DAY, PENALTY_TOTAL_COST_CAP } from '../lib/penalty.ts'
 import { ID_TYPES } from '../lib/kyc.ts'
 import { IDLE_LIMIT_MS, IDLE_WARNING_MS } from '../auth/idle.ts'
 
@@ -216,6 +216,13 @@ export const FAQ: FaqSection[] = [
           'Payments go to unpaid penalties first, then to your installments.',
           `Example: you are 3 days late (${pesoWhole(PENALTY_PER_DAY * 3)} in penalties) and pay only your usual ${peso(year.payment)}. ${pesoWhole(PENALTY_PER_DAY * 3)} clears the penalty and the rest goes to the installment, which is now ${pesoWhole(PENALTY_PER_DAY * 3)} short — so it is still overdue and penalties continue.`,
           'To stop penalties, pay the full "Pay now" amount shown on your loan page.',
+        ],
+      },
+      {
+        q: 'Is there a limit to penalties?',
+        a: [
+          `Yes. Your interest and penalties together can never be more than ${PENALTY_TOTAL_COST_CAP * 100}% of the amount you borrowed. Once that limit is reached, penalties stop increasing — but the loan is still overdue until it’s paid.`,
+          `Example: borrowing ${pesoWhole(EXAMPLE)} for 12 months has ${peso(year.totalInterest)} in interest, so penalties can never exceed ${peso(EXAMPLE * PENALTY_TOTAL_COST_CAP - year.totalInterest)}. Your limit is shown on your loan page.`,
         ],
       },
       {

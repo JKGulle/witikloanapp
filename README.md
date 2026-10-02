@@ -73,6 +73,7 @@ Public page (no sign-in needed) with searchable questions on applying, interest,
 - **Payments are applied to penalties first**, then installments. A loan becomes **Paid** only when installments *and* penalties are cleared.
 - Penalties are computed by the database (`loan_penalty_status()` / `loan_penalty_statuses()`) from the schedule and payment history, so past penalties are kept after the borrower catches up and no client can alter them.
 - Change the rate in `loan_penalty_per_day()` in `supabase/migrations/20261002030000_late_penalties.sql`.
+- **Cap:** penalties stop accruing once interest + penalties reach 100% of the principal (`loan_total_cost_cap()` in `20261003000000_term_minimum_and_penalty_cap.sql`). The loan stays overdue; only the penalty stops growing.
 - ⚠️ **Compliance:** SEC MC No. 3 (2022) caps late-payment fees for lending/financing companies (5% per month of the amount due; total charges ≤ 100% of principal). ₱100/day exceeds this on typical installments — confirm with your compliance adviser before going live.
 
 ### Identity verification (KYC)
@@ -98,4 +99,5 @@ android/               Capacitor Android project
 ## Configuration
 - Currency and locale: `CURRENCY` / `LOCALE` in `src/lib/loan.ts` (default PHP / en-PH).
 - Interest tiers: `annualRateFor()` in `src/lib/loan.ts` **and** `loan_annual_rate()` in the SQL. Keep the two in sync.
-- Loan limits: `LOAN_LIMITS` in `src/lib/loan.ts` **and** the `CHECK` constraints in the SQL.
+- Loan limits: `LOAN_LIMITS` in `src/lib/loan.ts` **and** the `CHECK` constraints in the SQL. Terms are **3–36 months** (Google Play rejects personal loans repayable in 60 days or less).
+- Production setup: see [`docs/PRODUCTION.md`](docs/PRODUCTION.md).

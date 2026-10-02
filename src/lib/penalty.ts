@@ -7,6 +7,12 @@ import { supabase } from './supabase.ts'
 export const PENALTY_PER_DAY = 100
 
 /**
+ * Interest + penalties may not exceed this multiple of the principal; set by
+ * public.loan_total_cost_cap() in the database. Display copy only.
+ */
+export const PENALTY_TOTAL_COST_CAP = 1
+
+/**
  * Late-payment position of a disbursed loan, computed by the database
  * (public.loan_penalty_status) — the single source of truth for penalties.
  */
@@ -22,6 +28,8 @@ export interface PenaltyStatus {
   penalty_due: number
   installments_paid: number
   total_installments: number
+  /** Most this loan can ever be charged in penalties. */
+  penalty_cap: number
 }
 
 type Row = Record<keyof PenaltyStatus, unknown>
@@ -39,8 +47,12 @@ function normalize(row: Row): PenaltyStatus {
     penalty_due: Number(row.penalty_due),
     installments_paid: Number(row.installments_paid),
     total_installments: Number(row.total_installments),
+    penalty_cap: Number(row.penalty_cap ?? 0),
   }
 }
+
+/** True once penalties have hit the cap and stopped growing. */
+export const penaltyCapReached = (s: PenaltyStatus) => s.penalty_cap > 0 && s.penalty_accrued >= s.penalty_cap - 0.005
 
 /** Amount needed today to bring the loan current: overdue installments plus unpaid penalties. */
 export const amountDueNow = (s: PenaltyStatus) => Math.round((s.amount_overdue + s.penalty_due) * 100) / 100

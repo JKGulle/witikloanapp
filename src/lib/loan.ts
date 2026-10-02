@@ -8,7 +8,8 @@ export const LOAN_LIMITS = {
   minAmount: 1_000,
   maxAmount: 500_000,
   amountStep: 500,
-  minTerm: 1,
+  /** Google Play rejects personal loans repayable in 60 days or less. */
+  minTerm: 3,
   maxTerm: 36,
 } as const
 

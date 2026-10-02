@@ -1,5 +1,5 @@
 import { formatMoney } from '../lib/loan.ts'
-import { amountDueNow, type PenaltyStatus } from '../lib/penalty.ts'
+import { amountDueNow, penaltyCapReached, type PenaltyStatus } from '../lib/penalty.ts'
 
 /** Red banner shown while a loan has installments past their due date. */
 export function OverdueAlert({ status, audience }: { status: PenaltyStatus; audience: 'borrower' | 'staff' }) {
@@ -12,8 +12,9 @@ export function OverdueAlert({ status, audience }: { status: PenaltyStatus; audi
         {audience === 'borrower' ? `Your payment is ${days} overdue.` : `Overdue by ${days}.`}
       </strong>
       <span>
-        A late penalty of {formatMoney(status.penalty_per_day, true)} is added for each day until the overdue amount is
-        paid.
+        {penaltyCapReached(status)
+          ? `Penalties have reached their limit of ${formatMoney(status.penalty_cap)} and no longer increase.`
+          : `A late penalty of ${formatMoney(status.penalty_per_day, true)} is added for each day until the overdue amount is paid.`}
       </span>
       <span className="overdue__due">
         {audience === 'borrower' ? 'Pay now' : 'Due now'}: <strong>{formatMoney(amountDueNow(status))}</strong>
@@ -39,6 +40,12 @@ export function PenaltyBreakdown({ status }: { status: PenaltyStatus }) {
       <dd>{formatMoney(status.penalty_paid)}</dd>
       <dt>Penalties due</dt>
       <dd className={status.penalty_due > 0 ? 'text-danger' : undefined}>{formatMoney(status.penalty_due)}</dd>
+      {status.penalty_cap > 0 && (
+        <>
+          <dt>Penalty limit</dt>
+          <dd>{formatMoney(status.penalty_cap)}</dd>
+        </>
+      )}
     </dl>
   )
 }
