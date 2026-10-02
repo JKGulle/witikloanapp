@@ -1,0 +1,6 @@
+# Keep LF line endings in the repo on every OS (Android gradlew needs LF).
+* text=auto eol=lf
+*.bat text eol=crlf
+*.png binary
+*.jpg binary
+*.jar binary
