@@ -1,5 +1,7 @@
 # Witik Loan
 
+**Live:** https://witikloanapp.vercel.app (Vercel, production). Deploy with `npx vercel deploy --prod`; production builds use `VITE_PUBLIC_SITE_URL=https://witikloanapp.vercel.app` for emailed links.
+
 A cross-platform loan app (Web · Android · iOS) built with **React + TypeScript + Vite**, wrapped for mobile with **Capacitor**, and backed by **Supabase** (Auth + Postgres with row-level security). The UI uses a **neumorphic** design: soft, extruded surfaces carved from a single #F5E0E8 base, with depth from paired light and dark shadows (raised = extruded, inset = pressed).
 
 ## Features
