@@ -1,0 +1,10 @@
+# Not needed to build the web app on Vercel
+android/
+ios/
+assets/
+docs/
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
