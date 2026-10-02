@@ -1,19 +1,23 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/auth-context.ts'
 import { QUEUE_TITLES, ROLE_LABELS } from '../lib/staff.ts'
+import type { StaffRole } from '../lib/types.ts'
 import { Logo } from './Logo.tsx'
 
-const LINKS = [
-  { to: '/admin', label: 'Overview', adminOnly: true, end: true },
-  { to: '/admin/applications', label: 'Applications', adminOnly: false, end: false },
-  { to: '/admin/staff', label: 'Staff', adminOnly: true, end: false },
-  { to: '/admin/audit', label: 'Audit log', adminOnly: true, end: false },
+const ALL_STAFF: StaffRole[] = ['admin', 'credit_investigator', 'cashier']
+
+const LINKS: { to: string; label: string; roles: StaffRole[]; end: boolean }[] = [
+  { to: '/admin', label: 'Overview', roles: ['admin'], end: true },
+  { to: '/admin/applications', label: 'Applications', roles: ALL_STAFF, end: false },
+  { to: '/admin/verifications', label: 'Verifications', roles: ['admin', 'credit_investigator'], end: false },
+  { to: '/admin/staff', label: 'Staff', roles: ['admin'], end: false },
+  { to: '/admin/audit', label: 'Audit log', roles: ['admin'], end: false },
 ]
 
 export function AdminShell() {
   const { role, user, signOut } = useAuth()
   const location = useLocation()
-  const links = LINKS.filter((l) => !l.adminOnly || role === 'admin')
+  const links = LINKS.filter((l) => role && l.roles.includes(role))
 
   return (
     <div className="admin-shell">

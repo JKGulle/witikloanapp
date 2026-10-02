@@ -19,6 +19,7 @@ import { AdminApplicationsPage } from './pages/admin/AdminApplicationsPage.tsx'
 import { AdminApplicationDetailPage } from './pages/admin/AdminApplicationDetailPage.tsx'
 import { StaffPage } from './pages/admin/StaffPage.tsx'
 import { AuditLogPage } from './pages/admin/AuditLogPage.tsx'
+import { VerificationDetailPage, VerificationsPage } from './pages/admin/VerificationsPage.tsx'
 
 export default function App() {
   return (
@@ -60,6 +61,22 @@ export default function App() {
             />
             <Route path="applications" element={<AdminApplicationsPage />} />
             <Route path="applications/:id" element={<AdminApplicationDetailPage />} />
+            <Route
+              path="verifications"
+              element={
+                <RequireStaff roles={['admin', 'credit_investigator']}>
+                  <VerificationsPage />
+                </RequireStaff>
+              }
+            />
+            <Route
+              path="verifications/:userId"
+              element={
+                <RequireStaff roles={['admin', 'credit_investigator']}>
+                  <VerificationDetailPage />
+                </RequireStaff>
+              }
+            />
             <Route
               path="staff"
               element={

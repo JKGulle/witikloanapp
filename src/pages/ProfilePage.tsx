@@ -7,6 +7,15 @@ import { Card } from '../components/Card.tsx'
 import { Button } from '../components/Button.tsx'
 import { Loader } from '../components/Loader.tsx'
 import { KycSection } from '../components/KycSection.tsx'
+import { VerifiedBadge } from '../components/VerifiedBadge.tsx'
+import type { KycStatus } from '../lib/types.ts'
+
+const IDENTITY_STATUS: Record<KycStatus, string> = {
+  verified: 'Identity verified',
+  pending: 'Identity check in review',
+  rejected: 'Identity check needs new photos',
+  unverified: 'Identity not verified yet — upload your ID below',
+}
 
 const EMPLOYMENT: { value: EmploymentStatus; label: string }[] = [
   { value: 'employed', label: 'Employed' },
@@ -77,11 +86,25 @@ export function ProfilePage() {
 
   return (
     <div className="stack-lg">
+      <h1 className="h1">Profile</h1>
+
+      {profile && (
+        <Card tone="accent" className="identity-card">
+          <span className="identity-card__avatar" aria-hidden="true">
+            {(profile.full_name || user?.email || '?').trim().charAt(0).toUpperCase()}
+          </span>
+          <div className="identity-card__text">
+            <span className="identity-card__name">
+              <strong>{profile.full_name || 'Add your name below'}</strong>
+              {profile.kyc_status === 'verified' && <VerifiedBadge size="md" />}
+            </span>
+            <span className="muted small">{user?.email}</span>
+            <span className={`identity-card__status is-${profile.kyc_status}`}>{IDENTITY_STATUS[profile.kyc_status]}</span>
+          </div>
+        </Card>
+      )}
+
       <form className="stack-lg" onSubmit={handleSubmit}>
-        <div className="section-head">
-          <h1 className="h1">Profile</h1>
-        </div>
-        <p className="muted small">{user?.email}</p>
   
         <Card className="stack">
           <label className="field">

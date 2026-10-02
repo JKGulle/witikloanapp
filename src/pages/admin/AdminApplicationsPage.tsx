@@ -10,6 +10,7 @@ import { Card } from '../../components/Card.tsx'
 import { Loader } from '../../components/Loader.tsx'
 import { StatusPill } from '../../components/StatusPill.tsx'
 import { ChevronRightIcon } from '../../components/icons.tsx'
+import { VerifiedBadge } from '../../components/VerifiedBadge.tsx'
 import { fetchPenaltyStatuses, type PenaltyStatus } from '../../lib/penalty.ts'
 
 interface View {
@@ -66,7 +67,10 @@ export function ApplicationRow({ app, penalty }: { app: StaffApplication; penalt
     <Link to={`/admin/applications/${app.id}`} className="loan-row-link">
       <Card interactive className="loan-row">
         <div className="loan-row__main">
-          <strong>{app.profile?.full_name || 'Unnamed borrower'}</strong>
+          <strong className="name-with-badge">
+            {app.profile?.full_name || 'Unnamed borrower'}
+            {app.profile?.kyc_status === 'verified' && <VerifiedBadge size="sm" />}
+          </strong>
           <span className="muted small">
             {formatMoney(Number(app.amount), true)} · {app.term_months} mo · {app.purpose} · {formatDate(app.created_at)}
           </span>

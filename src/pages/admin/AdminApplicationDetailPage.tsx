@@ -12,6 +12,7 @@ import { Loader } from '../../components/Loader.tsx'
 import { StatusPill } from '../../components/StatusPill.tsx'
 import { ArrowLeftIcon } from '../../components/icons.tsx'
 import { KycReview } from '../../components/KycReview.tsx'
+import { VerifiedBadge } from '../../components/VerifiedBadge.tsx'
 import { OverdueAlert, PenaltyBreakdown } from '../../components/PenaltySummary.tsx'
 import { amountDueNow, fetchPenaltyStatus, type PenaltyStatus } from '../../lib/penalty.ts'
 
@@ -90,7 +91,10 @@ export function AdminApplicationDetailPage() {
       <div className="section-head">
         <div>
           <span className="eyebrow">{app.purpose} loan</span>
-          <h1 className="h1">{profile?.full_name || 'Unnamed borrower'}</h1>
+          <h1 className="h1 name-with-badge">
+            {profile?.full_name || 'Unnamed borrower'}
+            {profile?.kyc_status === 'verified' && <VerifiedBadge size="lg" />}
+          </h1>
         </div>
         <StatusPill status={app.status} />
       </div>

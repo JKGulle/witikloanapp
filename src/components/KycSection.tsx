@@ -9,6 +9,7 @@ import { Button } from './Button.tsx'
 import { StatusPill } from './StatusPill.tsx'
 import { KycUploadTile } from './KycUploadTile.tsx'
 import { KycThumbnails } from './KycThumbnails.tsx'
+import { VerifiedBadge } from './VerifiedBadge.tsx'
 
 /** Borrower-facing identity verification: upload a government ID and a selfie. */
 export function KycSection({
@@ -40,7 +41,9 @@ export function KycSection({
       </div>
 
       {status === 'verified' && (
-        <p className="alert alert--info">Your identity is verified. Thank you!</p>
+        <p className="alert alert--info verified-note">
+          <VerifiedBadge size="md" /> Your identity is verified. Thank you!
+        </p>
       )}
 
       {status === 'rejected' && submission?.review_note && (

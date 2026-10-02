@@ -274,7 +274,7 @@ export const FAQ: FaqSection[] = [
           [
             'Not verified — you haven’t submitted documents yet.',
             'Pending review — we’re checking your documents. You can still replace them.',
-            'Verified — you’re all set.',
+            'Verified — you’re all set. A blue check badge appears next to your name on your profile and Home screen.',
             'Rejected — the reason is shown in Identity verification. Upload new photos to try again.',
           ],
         ],
@@ -282,7 +282,7 @@ export const FAQ: FaqSection[] = [
       {
         q: 'Who can see my ID and selfie?',
         a: [
-          'Only you, Witik administrators, and the credit investigator assigned to your application. Photos are stored privately and are never public. They’re resized on your device before upload, which also removes most hidden photo data such as location.',
+          'Only you and Witik staff who check identities: administrators, and credit investigators while your verification is being reviewed or your application is assigned to them. Photos are stored privately and are never public. They’re resized on your device before upload, which also removes most hidden photo data such as location.',
         ],
       },
     ],
@@ -386,7 +386,7 @@ export const FAQ: FaqSection[] = [
         a: [
           [
             'Admin — overview metrics, assign credit investigators, approve or reject applications, verify identities, add or deactivate staff, and read the audit log. Admins can also release loans and record payments as a backup for cashiers.',
-            'Credit Investigator — sees only applications assigned to them, reviews the borrower’s ID and selfie, and files an investigation report (employment, income and residence checks, risk rating and recommendation).',
+            'Credit Investigator — reviews pending identity verifications (ID and selfie) from the Verifications tab, sees only applications assigned to them, and files an investigation report (employment, income and residence checks, risk rating and recommendation).',
             'Cashier — releases approved loans to borrowers and accepts their monthly payments (including penalties). Cashiers see only approved, active and paid loans — not pending applications, ID photos or investigation reports. Every release and payment records which cashier handled it.',
           ],
         ],

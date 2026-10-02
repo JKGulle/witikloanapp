@@ -1190,6 +1190,12 @@ textarea.input {
   padding-top: 16px;
   border-top: 1px solid rgb(214 188 199 / 0.6);
 }
+/* On the verification page the review is the card's only content: no divider. */
+.kyc-standalone .kyc-review {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
 .kyc-thumbs {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
@@ -1251,6 +1257,117 @@ textarea.input {
 .penalty-kv {
   padding-top: 12px;
   border-top: 1px solid rgb(214 188 199 / 0.6);
+}
+
+/* ───────────── Verified badge ───────────── */
+.verified {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+.verified svg {
+  width: 1.25em;
+  height: 1.25em;
+  filter: drop-shadow(1px 1px 1px rgb(31 78 90 / 0.25));
+}
+.verified--sm svg {
+  width: 16px;
+  height: 16px;
+}
+.verified--md svg {
+  width: 20px;
+  height: 20px;
+}
+.verified--lg svg {
+  width: 28px;
+  height: 28px;
+}
+.verified__seal {
+  fill: #2f9fb3;
+}
+.verified__check {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.verified__label {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #1f4e5a;
+}
+.name-with-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.avatar {
+  position: relative;
+}
+.avatar__badge {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--c-bg);
+  padding: 1px;
+}
+
+.identity-card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.identity-card__avatar {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--c-accent);
+  background: var(--c-bg);
+  box-shadow: var(--raised-sm);
+}
+.identity-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.identity-card__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.15rem;
+}
+.identity-card__status {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--c-text-muted);
+}
+.identity-card__status.is-verified {
+  color: #1f6f80;
+}
+.identity-card__status.is-rejected {
+  color: var(--c-danger);
+}
+.identity-card__status.is-pending {
+  color: var(--c-warning);
+}
+.verified-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* ───────────── Home loan offer ───────────── */

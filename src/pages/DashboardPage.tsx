@@ -10,9 +10,12 @@ import { Loader } from '../components/Loader.tsx'
 import { ActiveLoanCard } from '../components/ActiveLoanCard.tsx'
 import { LoanOfferCard } from '../components/LoanOfferCard.tsx'
 import { LoanRow } from './LoansPage.tsx'
+import { VerifiedBadge } from '../components/VerifiedBadge.tsx'
+import { useBorrowerShell } from '../hooks/useBorrowerShell.ts'
 
 export function DashboardPage() {
   const { user } = useAuth()
+  const { kycStatus } = useBorrowerShell()
   const { applications, payments, penalties, loading, error } = useLoanData()
   const income = useQuery(async () => {
     if (!user) return null
@@ -37,7 +40,10 @@ export function DashboardPage() {
     <div className="stack-lg">
       <section>
         <p className="muted">Welcome back{firstName ? ',' : ''}</p>
-        <h1 className="h1">{firstName || 'Hello'}</h1>
+        <h1 className="h1 name-with-badge">
+          {firstName || 'Hello'}
+          {kycStatus === 'verified' && <VerifiedBadge size="lg" />}
+        </h1>
       </section>
 
       {error && <p className="alert alert--error">{error}</p>}
