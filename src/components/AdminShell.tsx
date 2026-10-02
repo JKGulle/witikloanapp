@@ -10,6 +10,7 @@ const LINKS: { to: string; label: string; roles: StaffRole[]; end: boolean }[] =
   { to: '/admin', label: 'Overview', roles: ['admin'], end: true },
   { to: '/admin/applications', label: 'Applications', roles: ALL_STAFF, end: false },
   { to: '/admin/verifications', label: 'Verifications', roles: ['admin', 'credit_investigator'], end: false },
+  { to: '/admin/reports', label: 'Reports', roles: ['admin'], end: false },
   { to: '/admin/staff', label: 'Staff', roles: ['admin'], end: false },
   { to: '/admin/audit', label: 'Audit log', roles: ['admin'], end: false },
 ]

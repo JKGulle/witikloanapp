@@ -60,6 +60,9 @@ select id, 'admin', coalesce(raw_user_meta_data ->> 'full_name', email), email
 
 After that, admins add more staff (including any number of credit investigators) from **Staff** in the console.
 
+### Reports (`/admin/reports`, admins)
+Analytics for a **day, week, month, year or custom date range**, with previous/next stepping and shareable URLs (`?kind=month&date=2026-10-01`). Includes key figures (applications, approval rate, money released, collections and penalties, IDs verified), released-vs-collected and applications charts with a table view, a portfolio snapshot (outstanding, overdue, portfolio at risk), applications by purpose, cashier activity, and itemised releases and payments. **Print / Save as PDF** produces a clean A4 report (white background, report header, all tables expanded, no app chrome). Figures are computed in the browser from data the admin can already read; for very large volumes, move the aggregation into a database function.
+
 ### Help & FAQ (`/faq`)
 Public page (no sign-in needed) with searchable questions on applying, interest, repayment, penalties, KYC, security and tips; staff also see a staff section. Content lives in `src/content/faq.ts`; loan examples are computed with the app's own loan math, so they stay correct if rates change. Link to a search with `/faq?q=penalty` or a section with `/faq#penalties`.
 

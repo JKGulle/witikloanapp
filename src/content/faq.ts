@@ -385,7 +385,7 @@ export const FAQ: FaqSection[] = [
         q: 'What can each role do?',
         a: [
           [
-            'Admin — overview metrics, assign credit investigators, approve or reject applications, verify identities, add or deactivate staff, and read the audit log. Admins can also release loans and record payments as a backup for cashiers.',
+            'Admin — overview metrics, printable reports (day, week, month, year or date range), assign credit investigators, approve or reject applications, verify identities, add or deactivate staff, and read the audit log. Admins can also release loans and record payments as a backup for cashiers.',
             'Credit Investigator — verifies borrowers’ identities (ID and selfie) from the Verifications tab, with the same verification powers as admins; sees only loan applications assigned to them, and files an investigation report (employment, income and residence checks, risk rating and recommendation).',
             'Cashier — releases approved loans to borrowers and accepts their monthly payments (including penalties). Cashiers see only approved, active and paid loans — not pending applications, ID photos or investigation reports. Every release and payment records which cashier handled it.',
           ],
