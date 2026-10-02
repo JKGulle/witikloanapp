@@ -48,11 +48,25 @@ export async function compressImage(file: File): Promise<Blob> {
 }
 
 /** Uploads one document into the signed-in user's own folder and returns its storage path. */
-export async function uploadKycDocument(userId: string, kind: KycDocKind, file: File): Promise<string> {
+export async function uploadKycDocument(kind: KycDocKind, file: File): Promise<string> {
+  // Ask the server who we are. A missing or stale session makes Storage treat the
+  // upload as anonymous, which its rules reject; the folder must also be the id
+  // the server sees, not one cached in the page.
+  const { data: auth, error: authError } = await supabase.auth.getUser()
+  if (authError || !auth.user) {
+    throw new Error('Your session has expired. Please sign in again, then retry the upload.')
+  }
+  const owner = auth.user.id
+
   const blob = await compressImage(file)
-  const path = `${userId}/${kind}-${Date.now()}.jpg`
+  const path = `${owner}/${kind}-${Date.now()}.jpg`
   const { error } = await supabase.storage.from(KYC_BUCKET).upload(path, blob, { contentType: 'image/jpeg' })
-  if (error) throw new Error(error.message)
+  if (error) {
+    const status = 'statusCode' in error ? String(error.statusCode) : 'unknown'
+    console.error('KYC upload rejected', { status, message: error.message, path, owner })
+    // Includes enough detail for support to tell a permissions problem from a session problem.
+    throw new Error(`Upload failed (${status}): ${error.message} [account ${owner.slice(0, 8)}]`)
+  }
   return path
 }
 

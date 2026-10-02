@@ -64,7 +64,6 @@ export function KycSection({
 
       {showForm && (
         <KycForm
-          userId={userId}
           onCancel={replacing ? () => setReplacing(false) : undefined}
           onDone={async () => {
             setReplacing(false)
@@ -77,7 +76,7 @@ export function KycSection({
   )
 }
 
-function KycForm({ userId, onCancel, onDone }: { userId: string; onCancel?: () => void; onDone: () => Promise<void> }) {
+function KycForm({ onCancel, onDone }: { onCancel?: () => void; onDone: () => Promise<void> }) {
   const [idType, setIdType] = useState<IdType>('philsys')
   const [front, setFront] = useState<File | null>(null)
   const [back, setBack] = useState<File | null>(null)
@@ -99,7 +98,7 @@ function KycForm({ userId, onCancel, onDone }: { userId: string; onCancel?: () =
       const paths: Record<string, string> = {}
       for (const [i, [kind, file]] of files.entries()) {
         setProgress(`Uploading ${i + 1} of ${files.length}…`)
-        paths[kind] = await uploadKycDocument(userId, kind, file)
+        paths[kind] = await uploadKycDocument(kind, file)
       }
       setProgress('Submitting…')
       const { error } = await supabase.rpc('submit_kyc', {
