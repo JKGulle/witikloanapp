@@ -30,6 +30,13 @@ export const supabase = createClient(clientUrl, clientKey, {
 })
 
 /**
+ * Base URL for links in emails (sign-up confirmation, password reset). In the
+ * Android app window.location is the device's own localhost, so production
+ * builds must set VITE_PUBLIC_SITE_URL to the hosted web address.
+ */
+export const siteUrl = (import.meta.env.VITE_PUBLIC_SITE_URL || window.location.origin).replace(/\/+$/, '')
+
+/**
  * Signs up a separate account without touching the current session — used by
  * admins to create staff accounts. Uses the public key only; the role itself
  * is granted afterwards by the admin-only admin_grant_staff_role() function.
@@ -38,5 +45,9 @@ export function signUpWithoutSession(email: string, password: string, fullName: 
   const isolated = createClient(clientUrl, clientKey, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false, storageKey: 'witik-staff-signup' },
   })
-  return isolated.auth.signUp({ email, password, options: { data: { full_name: fullName } } })
+  return isolated.auth.signUp({
+    email,
+    password,
+    options: { data: { full_name: fullName }, emailRedirectTo: `${siteUrl}/auth` },
+  })
 }

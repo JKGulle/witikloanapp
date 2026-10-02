@@ -12,6 +12,7 @@ import { ProfilePage } from './pages/ProfilePage.tsx'
 import { RequireStaff } from './auth/RequireStaff.tsx'
 import { IdleLogout } from './auth/IdleLogout.tsx'
 import { FaqPage } from './pages/FaqPage.tsx'
+import { ResetPasswordPage } from './pages/ResetPasswordPage.tsx'
 import { AdminShell } from './components/AdminShell.tsx'
 import { AdminOverviewPage } from './pages/admin/AdminOverviewPage.tsx'
 import { AdminApplicationsPage } from './pages/admin/AdminApplicationsPage.tsx'
@@ -27,6 +28,7 @@ export default function App() {
         <Routes>
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/faq" element={<FaqPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route
             element={
               <RequireAuth>

@@ -1,13 +1,13 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
-import { supabase } from '../lib/supabase.ts'
+import { siteUrl, supabase } from '../lib/supabase.ts'
 import { useAuth } from '../auth/auth-context.ts'
 import { clearLogoutReason, wasIdleLogout } from '../auth/idle.ts'
 import { Card } from '../components/Card.tsx'
 import { Button } from '../components/Button.tsx'
 import { Logo } from '../components/Logo.tsx'
 
-type Mode = 'signin' | 'signup'
+type Mode = 'signin' | 'signup' | 'forgot'
 
 export function AuthPage() {
   const { session } = useAuth()
@@ -36,14 +36,22 @@ export function AuthPage() {
     setError(null)
     setNotice(null)
 
-    if (mode === 'signin') {
+    if (mode === 'forgot') {
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${siteUrl}/reset-password`,
+      })
+      // Same message whether or not the account exists, so emails can't be probed.
+      if (error && !/rate limit/i.test(error.message)) setError(error.message)
+      else if (error) setError('Too many reset emails were sent recently. Please try again in a little while.')
+      else setNotice('If an account exists for that email, a reset link is on its way. Check your inbox and spam folder.')
+    } else if (mode === 'signin') {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) setError(error.message)
     } else {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { full_name: fullName.trim() } },
+        options: { data: { full_name: fullName.trim() }, emailRedirectTo: `${siteUrl}/auth` },
       })
       if (error) setError(error.message)
       else if (!data.session) setNotice('Check your inbox to confirm your email, then sign in.')
@@ -65,15 +73,22 @@ export function AuthPage() {
       </div>
 
       <Card className="auth-card">
-        <div className="segmented" role="tablist" data-active={mode}>
-          <span className="segmented__thumb" aria-hidden="true" />
-          <button role="tab" aria-selected={mode === 'signin'} onClick={() => switchMode('signin')}>
-            Sign in
-          </button>
-          <button role="tab" aria-selected={mode === 'signup'} onClick={() => switchMode('signup')}>
-            Create account
-          </button>
-        </div>
+        {mode === 'forgot' ? (
+          <div className="stack">
+            <h1 className="h3">Reset your password</h1>
+            <p className="muted small">Enter your account email and we'll send you a link to choose a new password.</p>
+          </div>
+        ) : (
+          <div className="segmented" role="tablist" data-active={mode}>
+            <span className="segmented__thumb" aria-hidden="true" />
+            <button role="tab" aria-selected={mode === 'signin'} onClick={() => switchMode('signin')}>
+              Sign in
+            </button>
+            <button role="tab" aria-selected={mode === 'signup'} onClick={() => switchMode('signup')}>
+              Create account
+            </button>
+          </div>
+        )}
 
         <form className="stack" onSubmit={handleSubmit}>
           {mode === 'signup' && (
@@ -99,8 +114,16 @@ export function AuthPage() {
               required
             />
           </label>
+          {mode !== 'forgot' && (
           <label className="field">
-            <span>Password</span>
+            <span className="field__row">
+              <span>Password</span>
+              {mode === 'signin' && (
+                <button type="button" className="text-button" onClick={() => switchMode('forgot')}>
+                  Forgot password?
+                </button>
+              )}
+            </span>
             <input
               className="input"
               type="password"
@@ -111,13 +134,19 @@ export function AuthPage() {
               required
             />
           </label>
+          )}
 
           {error && <p className="alert alert--error">{error}</p>}
           {notice && <p className="alert alert--info">{notice}</p>}
 
           <Button type="submit" block loading={busy}>
-            {mode === 'signin' ? 'Sign in' : 'Create account'}
+            {mode === 'signin' ? 'Sign in' : mode === 'signup' ? 'Create account' : 'Send reset link'}
           </Button>
+          {mode === 'forgot' && (
+            <button type="button" className="text-button" onClick={() => switchMode('signin')}>
+              ← Back to sign in
+            </button>
+          )}
         </form>
       </Card>
 
