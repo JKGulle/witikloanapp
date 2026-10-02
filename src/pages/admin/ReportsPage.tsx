@@ -21,6 +21,7 @@ import { Card } from '../../components/Card.tsx'
 import { Button } from '../../components/Button.tsx'
 import { Loader } from '../../components/Loader.tsx'
 import { BarChart } from '../../components/BarChart.tsx'
+import { exportReportToExcel } from '../../lib/reportExport.ts'
 
 const KINDS: { kind: PeriodKind; label: string }[] = [
   { kind: 'day', label: 'Day' },
@@ -92,6 +93,21 @@ export function ReportsPage() {
   }, [startISO, endISO])
 
   const report = data ? buildReport(data, period) : null
+  const [exporting, setExporting] = useState(false)
+  const [exportError, setExportError] = useState<string | null>(null)
+
+  async function handleExport() {
+    if (!report) return
+    setExporting(true)
+    setExportError(null)
+    try {
+      await exportReportToExcel(report, period, { generatedAt, generatedBy: user?.email ?? 'Unknown' })
+    } catch (e) {
+      setExportError(`Couldn't create the Excel file: ${e instanceof Error ? e.message : String(e)}`)
+    } finally {
+      setExporting(false)
+    }
+  }
 
   // Printed reports show every table, including ones collapsed on screen.
   useEffect(() => {
@@ -105,9 +121,14 @@ export function ReportsPage() {
       <div className="report-controls stack">
         <div className="section-head">
           <h1 className="h1">Reports</h1>
-          <Button onClick={() => window.print()} disabled={!report}>
-            Print / Save as PDF
-          </Button>
+          <div className="button-row report-actions">
+            <Button variant="ghost" onClick={() => void handleExport()} loading={exporting} disabled={!report}>
+              Export to Excel
+            </Button>
+            <Button onClick={() => window.print()} disabled={!report}>
+              Print / Save as PDF
+            </Button>
+          </div>
         </div>
 
         <div className="chips" role="tablist" aria-label="Report period">
@@ -151,6 +172,7 @@ export function ReportsPage() {
       </header>
 
       {error && <p className="alert alert--error">{error}</p>}
+      {exportError && <p className="alert alert--error report-controls">{exportError}</p>}
       {loading || !report ? (
         <Loader label="Building report" />
       ) : (
