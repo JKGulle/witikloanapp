@@ -69,7 +69,7 @@ export function AuthPage() {
     <div className="center-screen">
       <div className="auth-hero">
         <Logo size="lg" />
-        <p className="auth-hero__tag">Money that flows with you.</p>
+        <p className="auth-hero__tag">A better way to borrow.</p>
       </div>
 
       <Card className="auth-card">
