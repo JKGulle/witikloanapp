@@ -9,6 +9,8 @@ import { Loader } from '../components/Loader.tsx'
 import { StatusPill } from '../components/StatusPill.tsx'
 import { ArrowLeftIcon } from '../components/icons.tsx'
 import { OverdueAlert, PenaltyBreakdown } from '../components/PenaltySummary.tsx'
+import { EwalletPayCard } from '../components/EwalletPayCard.tsx'
+import { amountDueNow } from '../lib/penalty.ts'
 
 export function LoanDetailPage() {
   const { id } = useParams()
@@ -40,6 +42,10 @@ export function LoanDetailPage() {
   const progress = loanProgress(app, payments, penalty?.penalty_paid ?? 0)
   const loanPayments = payments.filter((p) => p.application_id === app.id)
   const showRepayment = app.status === 'disbursed' || app.status === 'paid'
+  const penaltyDue = penalty?.penalty_due ?? 0
+  const owed = progress.outstanding + penaltyDue
+  const payNow =
+    penalty && penalty.days_overdue > 0 ? amountDueNow(penalty) : progress.nextDueRemaining + penaltyDue
 
   async function handleCancel() {
     if (!window.confirm('Cancel this loan application?')) return
@@ -92,6 +98,10 @@ export function LoanDetailPage() {
       </Card>
 
       {penalty && app.status === 'disbursed' && <OverdueAlert status={penalty} audience="borrower" />}
+
+      {app.status === 'disbursed' && (
+        <EwalletPayCard applicationId={app.id} suggested={Math.min(payNow, owed)} owed={owed} onSubmitted={reload} />
+      )}
 
       {app.status === 'rejected' && app.decision_reason && (
         <p className="alert alert--error">Reason: {app.decision_reason}</p>

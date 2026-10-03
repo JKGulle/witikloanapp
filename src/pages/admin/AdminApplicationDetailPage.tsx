@@ -15,6 +15,7 @@ import { KycReview } from '../../components/KycReview.tsx'
 import { VerifiedBadge } from '../../components/VerifiedBadge.tsx'
 import { OverdueAlert, PenaltyBreakdown } from '../../components/PenaltySummary.tsx'
 import { amountDueNow, fetchPenaltyStatus, type PenaltyStatus } from '../../lib/penalty.ts'
+import { PaymentSubmissionReview } from '../../components/PaymentSubmissionReview.tsx'
 
 interface Detail {
   app: StaffApplication
@@ -259,6 +260,16 @@ export function AdminApplicationDetailPage() {
             <p className="muted small">
               Next due {formatDate(progress.nextDue.dueDate)} · {formatMoney(progress.nextDue.payment)}
             </p>
+          )}
+          {canHandleCash && app.status === 'disbursed' && (
+            <PaymentSubmissionReview
+              applicationId={app.id}
+              onReviewed={async (message) => {
+                setActionError(null)
+                setNotice(message)
+                await reload()
+              }}
+            />
           )}
           {canHandleCash && app.status === 'disbursed' && (
             <PaymentForm

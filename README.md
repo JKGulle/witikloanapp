@@ -48,7 +48,7 @@ Staff sign in on the same login screen and are routed to the admin console autom
 |---|---|
 | **Admin** | Overview metrics · assign credit investigators · approve/reject · disburse · record payments · verify KYC · create/deactivate staff · read the audit log |
 | **Credit Investigator** | Verify, reject or re-open **any** borrower's identity (KYC) from **Verifications**, same as admins · see only loan applications assigned to them · file an investigation report (employment/income/residence checks, risk rating, recommendation) |
-| **Cashier** | Release approved loans and record repayments (incl. penalties) · sees only approved, active and paid loans and those borrowers' contact details · no pending applications, ID photos, investigations, staff list or audit log. Each release/payment records who handled it (`disbursed_by`, `received_by`). Admins can also release and record payments as a backup. Requires `20261002040000_cashier_role.sql`. |
+| **Cashier** | Release approved loans and record repayments (incl. penalties) · sees only approved, active and paid loans and those borrowers' contact details · no pending applications, ID photos, investigations, staff list or audit log. Each release/payment records who handled it (`disbursed_by`, `received_by`). Admins can also release and record payments as a backup. Checks borrowers' GCash/Maya receipts under **E-wallet**. Requires `20261002040000_cashier_role.sql`. |
 
 Loan lifecycle (enforced in the database): `pending → approved → disbursed → paid`, or `pending → rejected / cancelled`. Every staff action is recorded in `audit_log`.
 
@@ -83,6 +83,14 @@ Public page (no sign-in needed) with searchable questions on applying, interest,
 
 ### Identity verification (KYC)
 Borrowers upload a government ID (front/back) and a selfie holding it from **Profile → Identity verification**. Photos are resized to ≤1600px JPEG on the device, stored in the **private** `kyc-documents` bucket under `<user_id>/`, and shown to staff through short-lived signed URLs. Only the borrower, admins and the credit investigator assigned to that borrower can view them. Staff verify or reject (with a reason the borrower sees); **a loan cannot be approved until KYC is verified**. Admins and credit investigators review uploads in the **Verifications** queue (`/admin/verifications`) — no loan application needed — and either role can verify, reject or change any decision. Verified borrowers get a check badge on their profile, Home screen and header avatar, and next to their name in the staff console. Requires `20261003010000_kyc_review_queue.sql`. Requires `supabase/migrations/20261002020000_kyc_documents.sql`.
+
+### E-wallet payments (GCash / Maya)
+Manual verification, no payment gateway. Requires `20261004000000_ewallet_payments.sql`.
+1. **Admin** adds Witik's receiving accounts (GCash or Maya number, account name, optional QR code) under **E-wallet → Receiving accounts**. QR codes are stored in the **public** `payment-qr` bucket.
+2. **Borrower** opens an active loan, taps **Pay**, sends the money from their e-wallet app, then submits the amount, reference number and a receipt screenshot. Screenshots go to the **private** `payment-proofs` bucket under `<user_id>/`. The database rejects reused reference numbers and totals (including pending submissions) above what's still owed.
+3. **Cashier or admin** finds the reference in the e-wallet's transaction history and approves (optionally correcting the amount, with a note) or rejects with a reason the borrower sees. The queue is at `/admin/payments`; the review itself is on the loan page.
+
+Approving records a normal payment through the same rules as a cashier payment (penalties first, loan marked **Paid** when cleared). Its `paid_at` is the **submission time**, so a slow review never adds penalties. The payment's reference is stored as e.g. `GCASH 1234567890`.
 
 ### Email limits
 Supabase's built-in email service sends only **2 emails per hour**, and every new sign-up (borrower or staff) needs one confirmation email. Before real use, connect your own email provider in **Authentication → Emails → SMTP Settings** (e.g. Resend, Brevo or a Gmail app password), then raise **Authentication → Rate Limits → emails sent per hour**. For testing only, you can instead turn off **Confirm email**. Adding staff with an email that already has an account sends no email.

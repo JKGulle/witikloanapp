@@ -104,3 +104,38 @@ export interface Payment {
   received_by: string | null
   paid_at: string
 }
+
+export type EwalletProvider = 'gcash' | 'maya'
+
+/** One of Witik's receiving e-wallet accounts. */
+export interface PaymentChannel {
+  id: string
+  provider: EwalletProvider
+  account_name: string
+  account_number: string
+  qr_path: string | null
+  active: boolean
+  updated_by: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type PaymentSubmissionStatus = 'pending' | 'approved' | 'rejected'
+
+/** A borrower's e-wallet receipt awaiting (or after) cashier review. */
+export interface PaymentSubmission {
+  id: string
+  application_id: string
+  user_id: string
+  channel_id: string | null
+  provider: EwalletProvider
+  amount: number
+  reference: string
+  proof_path: string
+  status: PaymentSubmissionStatus
+  submitted_at: string
+  reviewed_at: string | null
+  reviewed_by: string | null
+  review_note: string | null
+  payment_id: string | null
+}

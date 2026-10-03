@@ -24,6 +24,7 @@ import { StaffPage } from './pages/admin/StaffPage.tsx'
 import { AuditLogPage } from './pages/admin/AuditLogPage.tsx'
 import { VerificationDetailPage, VerificationsPage } from './pages/admin/VerificationsPage.tsx'
 import { ReportsPage } from './pages/admin/ReportsPage.tsx'
+import { PaymentsPage } from './pages/admin/PaymentsPage.tsx'
 
 export default function App() {
   return (
@@ -80,6 +81,14 @@ export default function App() {
               element={
                 <RequireStaff roles={['admin', 'credit_investigator']}>
                   <VerificationDetailPage />
+                </RequireStaff>
+              }
+            />
+            <Route
+              path="payments"
+              element={
+                <RequireStaff roles={['admin', 'cashier']}>
+                  <PaymentsPage />
                 </RequireStaff>
               }
             />

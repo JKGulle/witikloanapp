@@ -175,8 +175,16 @@ export const FAQ: FaqSection[] = [
       {
         q: 'How do I pay?',
         a: [
-          'Follow the payment instructions Witik gives you when your loan is released, and keep the reference number of every payment.',
-          'A Witik cashier records each payment against your loan and gives you the reference. It then appears under Payments on your loan page, and your progress bar and balance update.',
+          'With GCash or Maya: open your loan page and tap Pay under "Pay with GCash or Maya". Send the amount to the Witik account shown (scan the QR code or copy the number, and check that the account name matches), then enter the reference number and upload a screenshot of your receipt.',
+          'A Witik cashier checks it against our e-wallet records, usually within one business day. Once approved it appears under Payments on your loan page, and your progress bar and balance update. It counts from the time you submitted it, so you won’t be charged a penalty while it’s being checked.',
+          'You can also pay a Witik cashier directly. Keep the reference number of every payment.',
+        ],
+      },
+      {
+        q: 'My e-wallet payment was not accepted. What now?',
+        a: [
+          'Your loan page shows the reason, for example a reference number we couldn’t find or an unreadable receipt. If you did send the money, submit it again with the correct reference number and a clear screenshot, or contact Witik with your receipt.',
+          'Only send payments to the account shown in the app. Witik staff will never ask you to pay a personal GCash or Maya account.',
         ],
       },
       {
