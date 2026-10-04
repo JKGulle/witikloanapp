@@ -93,6 +93,7 @@ export interface StaffApplication extends LoanApplication {
   profile: Profile | null
   investigator: Pick<Staff, 'full_name'> | null
   investigation: Investigation | null
+  collateral: LoanCollateral | null
 }
 
 export interface Payment {
@@ -138,4 +139,24 @@ export interface PaymentSubmission {
   reviewed_by: string | null
   review_note: string | null
   payment_id: string | null
+}
+
+export type CollateralStatus = 'offered' | 'received' | 'returned'
+
+/** ATM card offered as collateral. Only the last 4 digits are stored — never the full number or PIN. */
+export interface LoanCollateral {
+  application_id: string
+  user_id: string
+  kind: 'atm_card'
+  bank_name: string
+  card_last4: string
+  cardholder: string
+  status: CollateralStatus
+  created_at: string
+  received_at: string | null
+  received_by: string | null
+  storage_ref: string | null
+  returned_at: string | null
+  returned_by: string | null
+  return_note: string | null
 }

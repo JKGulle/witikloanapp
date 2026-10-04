@@ -1972,3 +1972,13 @@ button.link {
 .proof-row__body {
   flex: 1 1 260px;
 }
+
+/* ───────────── ATM card collateral ───────────── */
+.rec--collateral {
+  color: var(--c-accent);
+  text-transform: none;
+}
+.collateral-option {
+  padding-top: 16px;
+  border-top: 1px solid rgb(214 188 199 / 0.6);
+}

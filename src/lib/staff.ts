@@ -23,7 +23,7 @@ export const EMPLOYMENT_LABELS: Record<string, string> = {
 
 /** Embedded columns used by every staff application query. */
 export const STAFF_APPLICATION_SELECT =
-  '*, profile:profiles(*), investigator:staff(full_name), investigation:investigations(*)'
+  '*, profile:profiles(*), investigator:staff(full_name), investigation:investigations(*), collateral:loan_collateral(*)'
 
 const ACTION_LABELS: Record<string, string> = {
   'staff.granted': 'Granted staff role',
@@ -40,6 +40,10 @@ const ACTION_LABELS: Record<string, string> = {
   'payment.rejected': 'Rejected e-wallet payment',
   'payment_channel.saved': 'Saved e-wallet account',
   'loan.paid': 'Loan fully paid',
+  'collateral.offered': 'Offered ATM card as collateral',
+  'collateral.withdrawn': 'Withdrew ATM card collateral',
+  'collateral.received': 'Received ATM card',
+  'collateral.returned': 'Returned ATM card',
   'kyc.submitted': 'Submitted KYC documents',
   'kyc.verified': 'Verified KYC',
   'kyc.rejected': 'Rejected KYC',

@@ -59,6 +59,12 @@ const VIEWS: View[] = [
     roles: ['admin', 'credit_investigator', 'cashier'],
     match: (a) => a.status === 'paid' || a.status === 'rejected' || a.status === 'cancelled',
   },
+  {
+    key: 'cards',
+    label: 'Cards to return',
+    roles: ['admin', 'cashier'],
+    match: (a) => a.status === 'paid' && a.collateral?.status === 'received',
+  },
 ]
 
 export function ApplicationRow({ app, penalty }: { app: StaffApplication; penalty?: PenaltyStatus }) {
@@ -79,6 +85,11 @@ export function ApplicationRow({ app, penalty }: { app: StaffApplication; penalt
             {app.investigation && (
               <span className={`rec rec--${app.investigation.recommendation}`}>
                 Recommends {app.investigation.recommendation}
+              </span>
+            )}
+            {app.collateral && app.collateral.status !== 'returned' && (
+              <span className="rec rec--collateral">
+                ATM card {app.collateral.status === 'received' ? 'held' : 'to hand in'}
               </span>
             )}
             {overdueDays > 0 && (

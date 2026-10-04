@@ -16,6 +16,7 @@ import { VerifiedBadge } from '../../components/VerifiedBadge.tsx'
 import { OverdueAlert, PenaltyBreakdown } from '../../components/PenaltySummary.tsx'
 import { amountDueNow, fetchPenaltyStatus, type PenaltyStatus } from '../../lib/penalty.ts'
 import { PaymentSubmissionReview } from '../../components/PaymentSubmissionReview.tsx'
+import { StaffCollateralCard } from '../../components/AtmCollateral.tsx'
 
 interface Detail {
   app: StaffApplication
@@ -223,11 +224,26 @@ export function AdminApplicationDetailPage() {
         />
       )}
 
+      {app.collateral && (
+        <StaffCollateralCard
+          applicationId={app.id}
+          collateral={app.collateral}
+          loanStatus={app.status}
+          canHandleCash={canHandleCash}
+          onChanged={async (message) => {
+            setActionError(null)
+            setNotice(message)
+            await reload()
+          }}
+        />
+      )}
+
       {canHandleCash && app.status === 'approved' && (
         <DisburseCard
           amount={Number(app.amount)}
           borrower={profile?.full_name || 'the borrower'}
           kycVerified={profile?.kyc_status === 'verified'}
+          awaitingCollateral={!!app.collateral && app.collateral.status !== 'received'}
           busy={busy === 'disburse'}
           onDisburse={(reference) =>
             run('disburse', 'Loan released. The repayment schedule has started.', () =>
@@ -548,12 +564,14 @@ function DisburseCard({
   amount,
   borrower,
   kycVerified,
+  awaitingCollateral,
   busy,
   onDisburse,
 }: {
   amount: number
   borrower: string
   kycVerified: boolean
+  awaitingCollateral: boolean
   busy: boolean
   onDisburse: (reference: string) => void
 }) {
@@ -569,6 +587,11 @@ function DisburseCard({
       {!kycVerified && (
         <p className="alert alert--warning">The borrower's identity isn't marked verified. Check their ID before releasing cash.</p>
       )}
+      {awaitingCollateral && (
+        <p className="alert alert--warning">
+          This loan is secured by the borrower's ATM card. Receive the card above before releasing.
+        </p>
+      )}
       <div className="inline-form">
         <input
           className="input"
@@ -579,7 +602,7 @@ function DisburseCard({
         />
         <Button
           loading={busy}
-          disabled={!reference.trim()}
+          disabled={!reference.trim() || awaitingCollateral}
           onClick={() => window.confirm(`Confirm you released ${formatMoney(amount)} to ${borrower}?`) && onDisburse(reference)}
         >
           Mark as released

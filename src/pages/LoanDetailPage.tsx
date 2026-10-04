@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase.ts'
 import { useLoanData } from '../hooks/useLoanData.ts'
 import { formatDate, formatMoney, loanProgress } from '../lib/loan.ts'
@@ -11,9 +11,14 @@ import { ArrowLeftIcon } from '../components/icons.tsx'
 import { OverdueAlert, PenaltyBreakdown } from '../components/PenaltySummary.tsx'
 import { EwalletPayCard } from '../components/EwalletPayCard.tsx'
 import { amountDueNow } from '../lib/penalty.ts'
+import { BorrowerCollateralCard } from '../components/AtmCollateral.tsx'
+import { useAuth } from '../auth/auth-context.ts'
 
 export function LoanDetailPage() {
   const { id } = useParams()
+  const { user } = useAuth()
+  // Set by the apply page if the loan was created but the ATM card couldn't be saved.
+  const collateralError = (useLocation().state as { collateralError?: string } | null)?.collateralError
   const { applications, payments, penalties, loading, error, reload } = useLoanData()
   const [cancelling, setCancelling] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
@@ -121,6 +126,18 @@ export function LoanDetailPage() {
           </Button>
         </Card>
       )}
+
+      {collateralError && app.status === 'pending' && (
+        <p className="alert alert--error">
+          Your application was submitted, but your ATM card details weren't saved: {collateralError} You can add them
+          below.
+        </p>
+      )}
+      <BorrowerCollateralCard
+        applicationId={app.id}
+        loanStatus={app.status}
+        defaultName={String(user?.user_metadata?.full_name ?? '')}
+      />
 
       <section className="stack">
         <h2 className="h3">{showRepayment ? 'Repayment schedule' : 'Estimated schedule'}</h2>

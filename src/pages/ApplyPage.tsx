@@ -6,6 +6,8 @@ import { AFFORDABILITY_RATIO, formatMoney, LOAN_LIMITS, loanQuote } from '../lib
 import type { Profile } from '../lib/types.ts'
 import { Card } from '../components/Card.tsx'
 import { Button } from '../components/Button.tsx'
+import { AtmCardFields, PinWarning } from '../components/AtmCollateral.tsx'
+import { emptyAtmCard, isAtmCardComplete, offerAtmCollateral, type AtmCardInput } from '../lib/collateral.ts'
 
 const PURPOSES = ['Education', 'Medical', 'Business', 'Home improvement', 'Emergency', 'Debt consolidation', 'Other']
 
@@ -31,6 +33,8 @@ export function ApplyPage() {
   const [term, setTerm] = useState(() => fromParam(params.get('term'), LOAN_LIMITS.minTerm, LOAN_LIMITS.maxTerm, 1, 12))
   const [purpose, setPurpose] = useState(PURPOSES[0])
   const [agreed, setAgreed] = useState(false)
+  const [withCard, setWithCard] = useState(false)
+  const [card, setCard] = useState<AtmCardInput | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -59,10 +63,24 @@ export function ApplyPage() {
       .insert({ amount, term_months: term, purpose })
       .select('id')
       .single()
+    if (error) {
+      setBusy(false)
+      return setError(error.message)
+    }
+    let collateralError: string | null = null
+    if (withCard && card) {
+      try {
+        await offerAtmCollateral(data.id, card)
+      } catch (err) {
+        // The application exists either way; the loan page lets them add the card again.
+        collateralError = err instanceof Error ? err.message : String(err)
+      }
+    }
     setBusy(false)
-    if (error) return setError(error.message)
-    navigate(`/loans/${data.id}`, { replace: true })
+    navigate(`/loans/${data.id}`, { replace: true, state: collateralError ? { collateralError } : undefined })
   }
+
+  const atmCard = card ?? emptyAtmCard(profile?.full_name ?? '')
 
   return (
     <form className="stack-lg" onSubmit={handleSubmit}>
@@ -164,6 +182,32 @@ export function ApplyPage() {
         </p>
       )}
 
+      <Card className="stack">
+        <label className="checkbox">
+          <input
+            type="checkbox"
+            checked={withCard}
+            onChange={(e) => {
+              setWithCard(e.target.checked)
+              if (e.target.checked && !card) setCard(atmCard)
+            }}
+          />
+          <span>
+            <strong>Offer my ATM card as collateral</strong> (optional)
+            <br />
+            <span className="muted small">
+              You hand the card to a Witik cashier when your loan is released and get it back when it's fully paid.
+            </span>
+          </span>
+        </label>
+        {withCard && (
+          <div className="stack collateral-option">
+            <AtmCardFields value={atmCard} onChange={setCard} />
+            <PinWarning />
+          </div>
+        )}
+      </Card>
+
       <label className="checkbox">
         <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
         <span>
@@ -174,7 +218,7 @@ export function ApplyPage() {
 
       {error && <p className="alert alert--error">{error}</p>}
 
-      <Button type="submit" block loading={busy} disabled={!agreed || !profileComplete}>
+      <Button type="submit" block loading={busy} disabled={!agreed || !profileComplete || (withCard && !isAtmCardComplete(atmCard))}>
         Submit application
       </Button>
     </form>

@@ -188,6 +188,14 @@ export const FAQ: FaqSection[] = [
         ],
       },
       {
+        q: 'Can I use my ATM card as collateral?',
+        a: [
+          'Yes, it’s optional. Tick "Offer my ATM card as collateral" when you apply, or add it from your loan page while the application is pending. Enter only the bank, the last 4 digits and the name on the card.',
+          'Bring the card to the Witik office when your loan is released; the loan is released once a cashier has it. Your loan page shows that Witik is holding it, and it’s returned when your loan is fully paid.',
+          'Never give anyone your PIN or full card number, including Witik staff. We will never ask for them.',
+        ],
+      },
+      {
         q: 'Can I pay more than my monthly amount, or pay early?',
         a: [
           'Yes. Any extra amount is applied to your next installments in order. Your schedule and the total interest stay the same.',

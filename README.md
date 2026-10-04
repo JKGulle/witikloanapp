@@ -84,6 +84,14 @@ Public page (no sign-in needed) with searchable questions on applying, interest,
 ### Identity verification (KYC)
 Borrowers upload a government ID (front/back) and a selfie holding it from **Profile → Identity verification**. Photos are resized to ≤1600px JPEG on the device, stored in the **private** `kyc-documents` bucket under `<user_id>/`, and shown to staff through short-lived signed URLs. Only the borrower, admins and the credit investigator assigned to that borrower can view them. Staff verify or reject (with a reason the borrower sees); **a loan cannot be approved until KYC is verified**. Admins and credit investigators review uploads in the **Verifications** queue (`/admin/verifications`) — no loan application needed — and either role can verify, reject or change any decision. Verified borrowers get a check badge on their profile, Home screen and header avatar, and next to their name in the staff console. Requires `20261003010000_kyc_review_queue.sql`. Requires `supabase/migrations/20261002020000_kyc_documents.sql`.
 
+### ATM card collateral
+Optional. Requires `20261005000000_atm_collateral.sql`.
+- **Borrower** ticks "Offer my ATM card as collateral" when applying, or adds/edits/removes it from the loan page while the application is pending. Only the **bank, last 4 digits and name on card** are stored — never the full card number or PIN, and the app tells borrowers never to share them.
+- **Cashier or admin** marks the card **received** (with an optional storage location) once the loan is approved. `admin_disburse_loan()` refuses to release a loan whose card hasn't been received.
+- When the loan is **paid**, it appears under **Cards to return** in the cashier queue; staff mark it **returned**. A card can also be returned from an approved loan that won't be released, but never from an active one.
+- Credit investigators assigned to the application can see the card details. Each step is in the audit log.
+- ⚠️ **Compliance:** holding a borrower's ATM card goes against most banks' cardholder terms and is a common subject of complaints against lenders. Confirm with your compliance adviser before offering it.
+
 ### E-wallet payments (GCash / Maya)
 Manual verification, no payment gateway. Requires `20261004000000_ewallet_payments.sql`.
 1. **Admin** adds Witik's receiving accounts (GCash or Maya number, account name, optional QR code) under **E-wallet → Receiving accounts**. QR codes are stored in the **public** `payment-qr` bucket.
