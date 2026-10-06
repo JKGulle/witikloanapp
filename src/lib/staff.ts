@@ -45,6 +45,7 @@ const ACTION_LABELS: Record<string, string> = {
   'collateral.withdrawn': 'Withdrew ATM card collateral',
   'collateral.received': 'Received ATM card',
   'collateral.returned': 'Returned ATM card',
+  'contract.accepted': 'Accepted loan agreement',
   'kyc.submitted': 'Submitted KYC documents',
   'kyc.verified': 'Verified KYC',
   'kyc.rejected': 'Rejected KYC',

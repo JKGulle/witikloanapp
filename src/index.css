@@ -2181,3 +2181,114 @@ button.link {
   text-align: center;
   line-height: 1.25;
 }
+
+/* ───────────── Loan agreement ───────────── */
+/* The agreement reads like a document pressed into the page; it scrolls on its own. */
+.contract-box {
+  max-height: min(60dvh, 460px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 18px 18px 8px;
+  border-radius: var(--r-md);
+  background: var(--c-bg);
+  box-shadow: var(--inset-sm);
+}
+.contract-box:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 3px;
+}
+.contract-box--open {
+  margin-top: 14px;
+}
+.contract {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  overflow-wrap: break-word;
+}
+.contract__head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--c-line);
+}
+.contract__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+}
+.contract h4 {
+  margin: 0 0 4px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--c-accent);
+}
+.contract p {
+  margin: 0 0 6px;
+  color: var(--c-text-muted);
+}
+.contract strong {
+  color: var(--c-text);
+}
+.contract__figures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: 0 18px;
+  margin: 8px 0;
+}
+.contract__figures div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--c-line);
+}
+.contract__figures dt {
+  color: var(--c-text-muted);
+}
+.contract__figures dd {
+  margin: 0;
+  font-weight: 800;
+  text-align: right;
+}
+.contract__end {
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.contract-hint {
+  text-align: center;
+}
+.checkbox.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.checkbox.is-disabled input {
+  cursor: not-allowed;
+}
+.contract-details summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  list-style: none;
+}
+.contract-details summary::-webkit-details-marker {
+  display: none;
+}
+.contract-details summary::after {
+  content: 'View';
+  flex-shrink: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--c-accent);
+}
+.contract-details[open] summary::after {
+  content: 'Hide';
+}

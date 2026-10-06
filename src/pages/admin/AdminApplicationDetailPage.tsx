@@ -18,6 +18,7 @@ import { amountDueNow, fetchPenaltyStatus, type PenaltyStatus } from '../../lib/
 import { PaymentSubmissionReview } from '../../components/PaymentSubmissionReview.tsx'
 import { StaffCollateralCard } from '../../components/AtmCollateral.tsx'
 import { AdminLoanOffer } from '../../components/AdminLoanOffer.tsx'
+import { lenderDetailsIncomplete, needsContractAcceptance } from '../../lib/contract.ts'
 
 interface Detail {
   app: StaffApplication
@@ -123,6 +124,14 @@ export function AdminApplicationDetailPage() {
             <dd>{formatMoney(progress.totalPayable)}</dd>
             <dt>Submitted</dt>
             <dd>{formatDateTime(app.created_at)}</dd>
+            <dt>Agreement</dt>
+            <dd className={needsContractAcceptance(app) ? 'text-danger' : undefined}>
+              {needsContractAcceptance(app)
+                ? 'Awaiting borrower acceptance'
+                : app.contract_accepted_at
+                  ? `Accepted ${formatDateTime(app.contract_accepted_at)} · ${app.contract_version}`
+                  : '—'}
+            </dd>
             {app.decided_at && (
               <>
                 <dt>Decided</dt>
@@ -275,6 +284,7 @@ export function AdminApplicationDetailPage() {
           borrower={profile?.full_name || 'the borrower'}
           kycVerified={profile?.kyc_status === 'verified'}
           awaitingCollateral={!!app.collateral && app.collateral.status !== 'received'}
+          awaitingContract={needsContractAcceptance(app)}
           busy={busy === 'disburse'}
           onDisburse={(reference) =>
             run('disburse', 'Loan released. The repayment schedule has started.', () =>
@@ -675,6 +685,7 @@ function DisburseCard({
   borrower,
   kycVerified,
   awaitingCollateral,
+  awaitingContract,
   busy,
   onDisburse,
 }: {
@@ -682,6 +693,7 @@ function DisburseCard({
   borrower: string
   kycVerified: boolean
   awaitingCollateral: boolean
+  awaitingContract: boolean
   busy: boolean
   onDisburse: (reference: string) => void
 }) {
@@ -702,6 +714,18 @@ function DisburseCard({
           This loan is secured by the borrower's ATM card. Receive the card above before releasing.
         </p>
       )}
+      {awaitingContract && (
+        <p className="alert alert--warning">
+          The borrower hasn't accepted the loan agreement with the current terms (for example after an interest rate
+          change). They need to open this loan in the app and accept it before you can release it.
+        </p>
+      )}
+      {lenderDetailsIncomplete && (
+        <p className="alert alert--warning">
+          The loan agreement still shows placeholder company details. Fill them in src/lib/contract.ts before releasing
+          loans.
+        </p>
+      )}
       <div className="inline-form">
         <input
           className="input"
@@ -712,7 +736,7 @@ function DisburseCard({
         />
         <Button
           loading={busy}
-          disabled={!reference.trim() || awaitingCollateral}
+          disabled={!reference.trim() || awaitingCollateral || awaitingContract}
           onClick={() => window.confirm(`Confirm you released ${formatMoney(amount)} to ${borrower}?`) && onDisburse(reference)}
         >
           Mark as released

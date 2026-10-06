@@ -13,6 +13,9 @@ import { EwalletPayCard } from '../components/EwalletPayCard.tsx'
 import { amountDueNow } from '../lib/penalty.ts'
 import { BorrowerCollateralCard } from '../components/AtmCollateral.tsx'
 import { useAuth } from '../auth/auth-context.ts'
+import { useQuery } from '../hooks/useQuery.ts'
+import { CONTRACT_VERSION, needsContractAcceptance } from '../lib/contract.ts'
+import { ContractReacceptCard, LoanContractText, type ContractTerms } from '../components/LoanContract.tsx'
 
 export function LoanDetailPage() {
   const { id } = useParams()
@@ -20,6 +23,12 @@ export function LoanDetailPage() {
   // Set by the apply page if the loan was created but the ATM card couldn't be saved.
   const collateralError = (useLocation().state as { collateralError?: string } | null)?.collateralError
   const { applications, payments, penalties, loading, error, reload } = useLoanData()
+  // The contract names the borrower as on their profile.
+  const borrowerName = useQuery(async () => {
+    if (!user) return ''
+    const { data } = await supabase.from('profiles').select('full_name').eq('id', user.id).maybeSingle()
+    return (data?.full_name as string | null) ?? ''
+  }, [user?.id])
   const [cancelling, setCancelling] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
   // Start of today, fixed for the life of the page, for marking overdue installments.
@@ -51,6 +60,26 @@ export function LoanDetailPage() {
   const owed = progress.outstanding + penaltyDue
   const payNow =
     penalty && penalty.days_overdue > 0 ? amountDueNow(penalty) : progress.nextDueRemaining + penaltyDue
+
+  const contractTerms: ContractTerms = {
+    borrowerName: borrowerName.data ?? '',
+    borrowerEmail: user?.email ?? '',
+    amount: Number(app.amount),
+    termMonths: app.term_months,
+    annualRate: Number(app.annual_rate),
+    purpose: app.purpose,
+  }
+  const mustAccept = needsContractAcceptance(app)
+
+  async function acceptContract() {
+    const { error } = await supabase.rpc('accept_loan_contract', {
+      p_application_id: app!.id,
+      p_version: CONTRACT_VERSION,
+    })
+    if (error) return error.message
+    await reload()
+    return null
+  }
 
   async function handleCancel() {
     if (!window.confirm('Cancel this loan application?')) return
@@ -122,6 +151,14 @@ export function LoanDetailPage() {
         </p>
       )}
 
+      {mustAccept && (
+        <ContractReacceptCard
+          terms={contractTerms}
+          reason={!app.contract_version ? 'missing' : app.contract_version !== CONTRACT_VERSION ? 'version' : 'rate'}
+          onAccept={acceptContract}
+        />
+      )}
+
       {app.status === 'pending' && (
         <Card className="stack">
           <p className="muted">
@@ -145,6 +182,28 @@ export function LoanDetailPage() {
         loanStatus={app.status}
         defaultName={String(user?.user_metadata?.full_name ?? '')}
       />
+
+      {!mustAccept && app.contract_accepted_at && (
+        <Card className="stack">
+          <details className="contract-details">
+            <summary>
+              <span className="stack-xs">
+                <strong>Loan agreement</strong>
+                <span className="muted small">
+                  Accepted {formatDate(app.contract_accepted_at)} · version {app.contract_version}
+                </span>
+              </span>
+            </summary>
+            <div className="contract-box contract-box--open">
+              <LoanContractText
+                terms={{ ...contractTerms, annualRate: Number(app.contract_rate) }}
+                version={app.contract_version ?? undefined}
+                date={new Date(app.contract_accepted_at)}
+              />
+            </div>
+          </details>
+        </Card>
+      )}
 
       <section className="stack">
         <h2 className="h3">{showRepayment ? 'Repayment schedule' : 'Estimated schedule'}</h2>

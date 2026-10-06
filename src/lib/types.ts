@@ -43,6 +43,10 @@ export interface LoanApplication {
   /** Set when an admin changed the rate from the standard one for the term. */
   rate_adjusted_by: string | null
   rate_adjusted_at: string | null
+  /** Loan contract the borrower accepted: version, when, and at which annual rate. */
+  contract_version: string | null
+  contract_accepted_at: string | null
+  contract_rate: number | null
 }
 
 export type IdType = 'philsys' | 'passport' | 'drivers_license' | 'umid' | 'sss' | 'prc' | 'postal' | 'voters'

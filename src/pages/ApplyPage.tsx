@@ -8,6 +8,8 @@ import { Card } from '../components/Card.tsx'
 import { Button } from '../components/Button.tsx'
 import { AtmCardFields, PinWarning } from '../components/AtmCollateral.tsx'
 import { emptyAtmCard, isAtmCardComplete, offerAtmCollateral, type AtmCardInput } from '../lib/collateral.ts'
+import { CONTRACT_VERSION } from '../lib/contract.ts'
+import { ContractConsent } from '../components/LoanContract.tsx'
 
 const PURPOSES = ['Education', 'Medical', 'Business', 'Home improvement', 'Emergency', 'Debt consolidation', 'Other']
 
@@ -32,7 +34,8 @@ export function ApplyPage() {
   )
   const [term, setTerm] = useState(() => fromParam(params.get('term'), LOAN_LIMITS.minTerm, LOAN_LIMITS.maxTerm, 1, 12))
   const [purpose, setPurpose] = useState(PURPOSES[0])
-  const [agreed, setAgreed] = useState(false)
+  // The terms the borrower agreed to; changing any of them withdraws the agreement.
+  const [agreedTo, setAgreedTo] = useState<string | null>(null)
   const [withCard, setWithCard] = useState(false)
   const [card, setCard] = useState<AtmCardInput | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -57,6 +60,8 @@ export function ApplyPage() {
   const profileComplete = Boolean(profile?.full_name && profile?.monthly_income && profile?.phone)
   const income = Number(profile?.monthly_income ?? 0)
   const overBudget = income > 0 && quote.payment > income * AFFORDABILITY_RATIO
+  const termsKey = `${amount}-${term}-${purpose}-${quote.annualRate}`
+  const agreed = agreedTo === termsKey
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -64,7 +69,7 @@ export function ApplyPage() {
     setError(null)
     const { data, error } = await supabase
       .from('loan_applications')
-      .insert({ amount, term_months: term, purpose })
+      .insert({ amount, term_months: term, purpose, contract_version: CONTRACT_VERSION })
       .select('id')
       .single()
     if (error) {
@@ -213,13 +218,26 @@ export function ApplyPage() {
         )}
       </Card>
 
-      <label className="checkbox">
-        <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
-        <span>
-          I confirm my information is accurate and I agree to the loan terms, interest rate and repayment schedule
-          shown above.
-        </span>
-      </label>
+      <Card className="stack">
+        <h2 className="h3">Loan agreement</h2>
+        <p className="muted small">
+          Read the agreement for the loan above. If you change the amount, term or purpose, it updates and you'll need
+          to read it again.
+        </p>
+        <ContractConsent
+          key={termsKey}
+          terms={{
+            borrowerName: profile?.full_name ?? '',
+            borrowerEmail: user?.email ?? '',
+            amount,
+            termMonths: term,
+            annualRate: quote.annualRate,
+            purpose,
+          }}
+          agreed={agreed}
+          onAgreedChange={(yes) => setAgreedTo(yes ? termsKey : null)}
+        />
+      </Card>
 
       {error && <p className="alert alert--error">{error}</p>}
 
