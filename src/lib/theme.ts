@@ -1,3 +1,6 @@
+import { Capacitor } from '@capacitor/core'
+import { StatusBar, Style } from '@capacitor/status-bar'
+
 /**
  * App theme. The preference is per device (localStorage), like the system setting it can follow.
  * public/theme-init.js applies it before first paint; this module keeps it applied afterwards.
@@ -30,6 +33,21 @@ function apply(pref: ThemePreference) {
   const theme = resolve(pref)
   document.documentElement.dataset.theme = theme
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLOR[theme])
+  if (Capacitor.isNativePlatform()) void syncStatusBar(theme)
+}
+
+/**
+ * Native apps: status-bar icons light on the dark theme, dark on the light one. The page normally
+ * draws behind the bar (always on Android 15+, which is edge-to-edge), so its background already
+ * matches; where Android still draws a solid bar, that bar gets the theme's background colour.
+ */
+async function syncStatusBar(theme: 'light' | 'dark') {
+  try {
+    await StatusBar.setStyle({ style: theme === 'dark' ? Style.Dark : Style.Light })
+    if (Capacitor.getPlatform() === 'android') await StatusBar.setBackgroundColor({ color: THEME_COLOR[theme] })
+  } catch {
+    // Not supported on this OS version (e.g. background colour on Android 15+): nothing to do.
+  }
 }
 
 export function setThemePreference(pref: ThemePreference) {
