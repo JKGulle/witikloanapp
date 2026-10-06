@@ -61,6 +61,9 @@ export function ProfilePage() {
 
   if (!form) return <Loader label="Loading profile" />
 
+  // Mirrors guard_profile_update() in the database: these must keep matching the submitted ID.
+  const identityLocked = profile?.kyc_status === 'pending' || profile?.kyc_status === 'verified'
+
   function set<K extends keyof EditableFields>(key: K, value: EditableFields[K]) {
     setForm((f) => (f ? { ...f, [key]: value } : f))
   }
@@ -70,14 +73,19 @@ export function ProfilePage() {
     if (!user || !form) return
     setBusy(true)
     setMessage(null)
+    const { full_name, date_of_birth, address, ...rest } = form
     const { error } = await supabase
       .from('profiles')
       .update({
-        ...form,
-        full_name: form.full_name?.trim() || null,
+        ...rest,
         phone: form.phone?.trim() || null,
-        address: form.address?.trim() || null,
-        date_of_birth: form.date_of_birth || null,
+        ...(identityLocked
+          ? {}
+          : {
+              full_name: full_name?.trim() || null,
+              address: address?.trim() || null,
+              date_of_birth: date_of_birth || null,
+            }),
       })
       .eq('id', user.id)
     setBusy(false)
@@ -107,9 +115,21 @@ export function ProfilePage() {
       <form className="stack-lg" onSubmit={handleSubmit}>
   
         <Card className="stack">
+          {identityLocked && (
+            <p className="muted small">
+              Your name, date of birth and address are locked while your ID is under review or verified. Contact Witik
+              support to change them.
+            </p>
+          )}
           <label className="field">
             <span>Full name</span>
-            <input className="input" value={form.full_name ?? ''} onChange={(e) => set('full_name', e.target.value)} required />
+            <input
+              className="input"
+              value={form.full_name ?? ''}
+              onChange={(e) => set('full_name', e.target.value)}
+              readOnly={identityLocked}
+              required
+            />
           </label>
           <label className="field">
             <span>Mobile number</span>
@@ -130,6 +150,7 @@ export function ProfilePage() {
               type="date"
               value={form.date_of_birth ?? ''}
               onChange={(e) => set('date_of_birth', e.target.value)}
+              readOnly={identityLocked}
             />
           </label>
           <label className="field">
@@ -139,6 +160,7 @@ export function ProfilePage() {
               rows={2}
               value={form.address ?? ''}
               onChange={(e) => set('address', e.target.value)}
+              readOnly={identityLocked}
             />
           </label>
         </Card>

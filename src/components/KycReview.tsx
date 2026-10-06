@@ -38,6 +38,8 @@ export function KycReview({
       p_user_id: userId,
       p_status: next,
       p_note: next === 'rejected' ? reason : null,
+      // Refused by the database if the borrower replaced the documents after they were loaded here.
+      p_submitted_at: data?.submission?.submitted_at ?? null,
     })
     setBusy(null)
     if (error) return setError(error.message)
