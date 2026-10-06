@@ -30,6 +30,18 @@
   --c-danger: #b0303f;
   --c-info: #3b5f94;
 
+  /* Hairlines, highlights and overlays (redefined per theme). */
+  --c-line: rgb(214 188 199 / 0.6);
+  --c-line-strong: rgb(214 188 199 / 0.7);
+  --c-gloss: rgb(255 255 255 / 0.6);
+  --c-gloss-soft: rgb(255 255 255 / 0.45);
+  --c-ring: rgb(255 255 255 / 0.4);
+  --c-placeholder: rgb(125 92 107 / 0.7);
+  --c-backdrop: rgb(245 224 232 / 0.72);
+  --c-hover: rgb(255 255 255 / 0.55);
+  --c-overdue-ring: rgb(176 48 63 / 0.35);
+  --c-verified-text: #1f6f80;
+
   --raised: 8px 8px 16px var(--c-shadow-dark), -8px -8px 16px var(--c-shadow-light);
   --raised-sm: 4px 4px 9px var(--c-shadow-dark), -4px -4px 9px var(--c-shadow-light);
   --raised-xs: 2px 2px 5px var(--c-shadow-dark), -2px -2px 5px var(--c-shadow-light);
@@ -45,6 +57,10 @@
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
 
+  /* Page side padding, widened past a landscape notch or rounded screen corner. */
+  --gutter-left: max(16px, env(safe-area-inset-left));
+  --gutter-right: max(16px, env(safe-area-inset-right));
+
   --font: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
   color-scheme: light;
@@ -53,6 +69,46 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Dark theme: the same soft-extruded material, carved from deep plum instead of blush.
+   data-theme is set before first paint by public/theme-init.js (see src/lib/theme.ts). */
+:root[data-theme='dark'] {
+  --c-bg: #2a1f26;
+  --c-shadow-dark: #1b1318;
+  --c-shadow-light: #392b34;
+  --c-surface-hi: #33262e;
+  --c-surface-lo: #22191f;
+
+  --c-text: #f4e6ed;
+  --c-text-muted: #c4a8b6;
+  --c-accent: #ee8fb6;
+  --c-accent-hi: #f4abc9;
+  --c-accent-soft: #6b3a52;
+
+  --c-button: #2f6f7a;
+  --c-button-hi: #3a808b;
+  --c-button-lo: #275f69;
+  --c-button-text: #eefafc;
+  --c-button-press: rgb(0 0 0 / 0.45);
+
+  --c-success: #7dd3a8;
+  --c-warning: #f0c070;
+  --c-danger: #ff8e9b;
+  --c-info: #9dbcf0;
+
+  --c-line: rgb(255 255 255 / 0.08);
+  --c-line-strong: rgb(255 255 255 / 0.12);
+  --c-gloss: rgb(255 255 255 / 0.18);
+  --c-gloss-soft: rgb(255 255 255 / 0.12);
+  --c-ring: rgb(255 255 255 / 0.04);
+  --c-placeholder: rgb(196 168 182 / 0.6);
+  --c-backdrop: rgb(20 14 18 / 0.72);
+  --c-hover: rgb(255 255 255 / 0.08);
+  --c-overdue-ring: rgb(255 142 155 / 0.4);
+  --c-verified-text: #7fd0dd;
+
+  color-scheme: dark;
 }
 
 *,
@@ -111,7 +167,7 @@ code {
   /* Debossed type: a highlight below-right, a soft shade above-left. */
   text-shadow:
     1px 1px 1px var(--c-shadow-light),
-    -1px -1px 1px rgb(214 188 199 / 0.6);
+    -1px -1px 1px var(--c-line);
 }
 .h2 {
   margin: 0;
@@ -158,9 +214,15 @@ code {
 }
 .section-head {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px 12px;
+}
+/* The title keeps the line beside its actions until it would get narrower than this. */
+.section-head > :first-child {
+  flex: 1 1 10rem;
+  min-width: 0;
 }
 
 .center-screen {
@@ -170,14 +232,14 @@ code {
   align-items: center;
   justify-content: center;
   gap: 32px;
-  padding: calc(24px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+  padding: calc(24px + env(safe-area-inset-top)) var(--gutter-right) calc(24px + env(safe-area-inset-bottom)) var(--gutter-left);
 }
 
 .shell {
   max-width: 640px;
   margin: 0 auto;
   min-height: 100dvh;
-  padding: calc(16px + env(safe-area-inset-top)) 16px calc(120px + env(safe-area-inset-bottom));
+  padding: calc(16px + env(safe-area-inset-top)) var(--gutter-right) calc(120px + env(safe-area-inset-bottom)) var(--gutter-left);
 }
 .shell__header {
   display: flex;
@@ -252,7 +314,7 @@ code {
 .logo__word {
   text-shadow:
     1px 1px 1px var(--c-shadow-light),
-    -1px -1px 1px rgb(214 188 199 / 0.6);
+    -1px -1px 1px var(--c-line);
 }
 
 .avatar {
@@ -298,7 +360,7 @@ code {
   background: linear-gradient(145deg, var(--c-button-hi), var(--c-button) 55%, var(--c-button-lo));
   box-shadow:
     var(--raised-sm),
-    inset 1px 1px 1px rgb(255 255 255 / 0.6);
+    inset 1px 1px 1px var(--c-gloss);
 }
 .btn--ghost {
   color: var(--c-button-text);
@@ -318,7 +380,7 @@ code {
 .btn--primary:active:not(:disabled) {
   box-shadow:
     inset 4px 4px 8px var(--c-button-press),
-    inset -3px -3px 6px rgb(255 255 255 / 0.45);
+    inset -3px -3px 6px var(--c-gloss-soft);
 }
 .btn:disabled {
   cursor: not-allowed;
@@ -376,7 +438,7 @@ code {
   transition: box-shadow 0.25s var(--ease);
 }
 .input::placeholder {
-  color: rgb(125 92 107 / 0.7);
+  color: var(--c-placeholder);
 }
 .input:focus {
   outline: none;
@@ -392,8 +454,20 @@ select.input {
       no-repeat right 18px center,
     var(--c-bg);
 }
+/* The arrow is an image, so it can't follow currentColor: redraw it in the dark accent. */
+:root[data-theme='dark'] select.input {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23ee8fb6' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+      no-repeat right 18px center,
+    var(--c-bg);
+}
 textarea.input {
   resize: vertical;
+  field-sizing: content;
+  min-height: 4.5em;
+}
+.input:read-only:not(select) {
+  color: var(--c-text-muted);
 }
 
 /* Range: an inset groove with a raised knob. */
@@ -457,6 +531,12 @@ textarea.input {
   box-shadow: var(--inset-sm);
   background:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a23f68' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 5 5 9-10'/%3E%3C/svg%3E")
+      center / 15px no-repeat,
+    var(--c-bg);
+}
+:root[data-theme='dark'] .checkbox input:checked {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ee8fb6' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 5 5 9-10'/%3E%3C/svg%3E")
       center / 15px no-repeat,
     var(--c-bg);
 }
@@ -639,7 +719,7 @@ textarea.input {
   background: var(--c-bg);
   box-shadow:
     var(--raised),
-    0 0 0 1px rgb(255 255 255 / 0.4);
+    0 0 0 1px var(--c-ring);
 }
 /* The active tab sits in a pressed-in slot that slides between items. */
 .tabbar__indicator {
@@ -668,6 +748,39 @@ textarea.input {
 }
 .tabbar__item.active {
   color: var(--c-accent);
+}
+@media (max-height: 480px) {
+  .shell {
+    padding-bottom: calc(88px + env(safe-area-inset-bottom));
+  }
+  .tabbar {
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    padding: 6px;
+  }
+  .tabbar__indicator {
+    top: 6px;
+    bottom: 6px;
+    left: 6px;
+    width: calc((100% - 12px) / var(--count));
+  }
+  .tabbar__item {
+    padding: 8px 4px;
+  }
+  /* Labels stay available to screen readers. */
+  .tabbar__item span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+/* The on-screen keyboard shrinks the viewport; a floating bar would cover the field being typed in. */
+@media (pointer: coarse) {
+  .shell:has(:is(input:not([type='checkbox'], [type='radio'], [type='range'], [type='file']), textarea, select):focus) .tabbar {
+    display: none;
+  }
 }
 
 /* ───────────── Auth ───────────── */
@@ -712,12 +825,13 @@ textarea.input {
   color: var(--c-accent);
   text-shadow:
     2px 2px 3px var(--c-shadow-light),
-    -1px -1px 2px rgb(214 188 199 / 0.7);
+    -1px -1px 2px var(--c-line-strong);
 }
 
 
 .loan-row-link {
   display: block;
+  container-type: inline-size;
 }
 .loan-row {
   display: flex;
@@ -734,6 +848,22 @@ textarea.input {
   flex: 1;
   min-width: 0;
   color: var(--c-text);
+}
+/* Too narrow for amount + status side by side: the status drops under the amount. */
+@container (max-width: 320px) {
+  .loan-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 12px;
+  }
+  .loan-row > .pill {
+    grid-row: 2;
+    justify-self: start;
+  }
+  .loan-row > svg:last-child {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+  }
 }
 .loan-row__main .muted {
   white-space: nowrap;
@@ -755,7 +885,7 @@ textarea.input {
 }
 .quote__grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 6.5rem), 1fr));
   gap: 12px;
   margin: 16px 0 0;
 }
@@ -771,7 +901,7 @@ textarea.input {
   margin: 4px 0 0;
   font-weight: 800;
   font-size: 0.95rem;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .back-link {
@@ -821,7 +951,7 @@ textarea.input {
   color: var(--c-text-muted);
 }
 .schedule tbody td {
-  border-top: 1px solid rgb(214 188 199 / 0.6);
+  border-top: 1px solid var(--c-line);
 }
 .schedule tr.is-paid {
   color: var(--c-text-muted);
@@ -841,7 +971,7 @@ textarea.input {
   max-width: 1100px;
   margin: 0 auto;
   min-height: 100dvh;
-  padding: calc(16px + env(safe-area-inset-top)) 16px calc(40px + env(safe-area-inset-bottom));
+  padding: calc(16px + env(safe-area-inset-top)) var(--gutter-right) calc(40px + env(safe-area-inset-bottom)) var(--gutter-left);
 }
 .admin-shell__header {
   display: flex;
@@ -1103,9 +1233,11 @@ textarea.input {
 .plain-list li {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 4px 12px;
   padding: 12px 4px;
-  border-top: 1px solid rgb(214 188 199 / 0.6);
+  border-top: 1px solid var(--c-line);
+  overflow-wrap: anywhere;
 }
 
 .is-inactive {
@@ -1188,7 +1320,7 @@ textarea.input {
 .kyc-review {
   margin-top: 6px;
   padding-top: 16px;
-  border-top: 1px solid rgb(214 188 199 / 0.6);
+  border-top: 1px solid var(--c-line);
 }
 /* On the verification page the review is the card's only content: no divider. */
 .kyc-standalone .kyc-review {
@@ -1256,7 +1388,7 @@ textarea.input {
 }
 .penalty-kv {
   padding-top: 12px;
-  border-top: 1px solid rgb(214 188 199 / 0.6);
+  border-top: 1px solid var(--c-line);
 }
 
 /* ───────────── Verified badge ───────────── */
@@ -1297,7 +1429,7 @@ textarea.input {
 .verified__label {
   font-size: 0.8rem;
   font-weight: 800;
-  color: #1f4e5a;
+  color: var(--c-button-text);
 }
 .name-with-badge {
   display: inline-flex;
@@ -1343,9 +1475,11 @@ textarea.input {
   flex-direction: column;
   gap: 3px;
   min-width: 0;
+  overflow-wrap: anywhere;
 }
 .identity-card__name {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
   font-size: 1.15rem;
@@ -1356,7 +1490,7 @@ textarea.input {
   color: var(--c-text-muted);
 }
 .identity-card__status.is-verified {
-  color: #1f6f80;
+  color: var(--c-verified-text);
 }
 .identity-card__status.is-rejected {
   color: var(--c-danger);
@@ -1392,7 +1526,7 @@ textarea.input {
   background: linear-gradient(145deg, var(--c-button-hi), var(--c-button) 55%, var(--c-button-lo));
   box-shadow:
     var(--raised-xs),
-    inset 1px 1px 1px rgb(255 255 255 / 0.6);
+    inset 1px 1px 1px var(--c-gloss);
 }
 .offer__headline {
   display: flex;
@@ -1407,7 +1541,7 @@ textarea.input {
   color: var(--c-accent);
   text-shadow:
     2px 2px 3px var(--c-shadow-light),
-    -1px -1px 2px rgb(214 188 199 / 0.7);
+    -1px -1px 2px var(--c-line-strong);
 }
 .offer__options {
   display: grid;
@@ -1497,7 +1631,7 @@ textarea.input {
   margin: 0;
   font-size: 1rem;
   font-weight: 800;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 .active-loan__amount {
   color: var(--c-accent);
@@ -1505,7 +1639,7 @@ textarea.input {
 .active-loan.is-overdue {
   box-shadow:
     var(--raised),
-    inset 0 0 0 2px rgb(176 48 63 / 0.35);
+    inset 0 0 0 2px var(--c-overdue-ring);
 }
 @media (max-width: 420px) {
   .active-loan__figures {
@@ -1521,7 +1655,7 @@ textarea.input {
   max-width: 760px;
   margin: 0 auto;
   min-height: 100dvh;
-  padding: calc(16px + env(safe-area-inset-top)) 16px calc(48px + env(safe-area-inset-bottom));
+  padding: calc(16px + env(safe-area-inset-top)) var(--gutter-right) calc(48px + env(safe-area-inset-bottom)) var(--gutter-left);
 }
 .faq-topics {
   flex-wrap: wrap;
@@ -1594,10 +1728,10 @@ textarea.input {
   position: fixed;
   inset: 0;
   z-index: 100;
-  display: grid;
-  place-items: center;
-  padding: 16px;
-  background: rgb(245 224 232 / 0.72);
+  display: flex;
+  overflow-y: auto;
+  padding: calc(16px + env(safe-area-inset-top)) var(--gutter-right) calc(16px + env(safe-area-inset-bottom)) var(--gutter-left);
+  background: var(--c-backdrop);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   animation: fade-in 0.25s var(--ease);
@@ -1605,6 +1739,7 @@ textarea.input {
 .modal {
   width: 100%;
   max-width: 400px;
+  margin: auto;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -1633,7 +1768,7 @@ textarea.input {
   overflow: visible;
 }
 .chart__grid {
-  stroke: rgb(214 188 199 / 0.7);
+  stroke: var(--c-line-strong);
   stroke-width: 1;
 }
 .chart__axis {
@@ -1646,7 +1781,7 @@ textarea.input {
   font-variant-numeric: tabular-nums;
 }
 .chart__hover {
-  fill: rgb(255 255 255 / 0.55);
+  fill: var(--c-hover);
 }
 .chart__hit {
   fill: transparent;
@@ -1792,7 +1927,7 @@ textarea.input {
   padding: 9px 10px;
   text-align: left;
   vertical-align: top;
-  border-bottom: 1px solid rgb(214 188 199 / 0.6);
+  border-bottom: 1px solid var(--c-line);
 }
 .report-table th {
   font-size: 0.72rem;
@@ -1832,7 +1967,10 @@ textarea.input {
   body {
     background: #fff !important;
   }
-  :root {
+  /* Paper is always light, whatever theme is on screen. */
+  :root,
+  :root[data-theme] {
+    color-scheme: light;
     --c-bg: #fff;
     --c-text: #1d1d1f;
     --c-text-muted: #555;
@@ -1964,7 +2102,7 @@ button.link {
   gap: 18px;
   align-items: flex-start;
   padding-top: 16px;
-  border-top: 1px solid rgb(214 188 199 / 0.6);
+  border-top: 1px solid var(--c-line);
 }
 .proof-row .kyc-thumb {
   flex: 0 0 120px;
@@ -1980,5 +2118,66 @@ button.link {
 }
 .collateral-option {
   padding-top: 16px;
-  border-top: 1px solid rgb(214 188 199 / 0.6);
+  border-top: 1px solid var(--c-line);
+}
+
+/* ───────────── Appearance (theme picker) ───────────── */
+.theme-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 70px), 1fr));
+  gap: 10px;
+}
+/* Raised tiles; the chosen theme sits pressed in, like the loan term options. */
+.theme-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 8px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: var(--c-bg);
+  box-shadow: var(--raised-xs);
+  color: var(--c-text-muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    box-shadow 0.2s var(--ease),
+    color 0.2s;
+}
+.theme-option[aria-checked='true'] {
+  color: var(--c-accent);
+  box-shadow: var(--inset-sm);
+}
+.theme-option:active {
+  box-shadow: var(--inset-sm);
+}
+/* A preview of each theme's surface, independent of the theme currently applied. */
+.theme-option__swatch {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  box-shadow: var(--raised-xs);
+}
+.theme-option__swatch.is-light {
+  color: #a23f68;
+  background: linear-gradient(145deg, #fbeff4, #ebd1dc);
+}
+.theme-option__swatch.is-dark {
+  color: #ee8fb6;
+  background: linear-gradient(145deg, #3a2b34, #22191f);
+}
+.theme-option__swatch.is-system {
+  color: #ee8fb6;
+  background: linear-gradient(135deg, #f5e0e8 0 50%, #2a1f26 50% 100%);
+}
+.theme-option__swatch.is-system svg {
+  filter: drop-shadow(0 0 1px rgb(0 0 0 / 0.5));
+}
+.theme-option__label {
+  text-align: center;
+  line-height: 1.25;
 }

@@ -8,6 +8,7 @@ import { Button } from '../components/Button.tsx'
 import { Loader } from '../components/Loader.tsx'
 import { KycSection } from '../components/KycSection.tsx'
 import { VerifiedBadge } from '../components/VerifiedBadge.tsx'
+import { ThemePicker } from '../components/ThemePicker.tsx'
 import type { KycStatus } from '../lib/types.ts'
 
 const IDENTITY_STATUS: Record<KycStatus, string> = {
@@ -209,6 +210,8 @@ export function ProfilePage() {
           onSubmitted={() => setProfile((p) => (p ? { ...p, kyc_status: 'pending' } : p))}
         />
       )}
+
+      <ThemePicker />
 
       <Link to="/faq" className="btn btn--ghost btn--block">
         <span className="btn__label">Help & FAQ</span>

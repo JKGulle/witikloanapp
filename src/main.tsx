@@ -6,6 +6,9 @@ import { App as NativeApp } from '@capacitor/app'
 import './index.css'
 import App from './App.tsx'
 import { AuthProvider } from './auth/AuthProvider.tsx'
+import { initTheme } from './lib/theme.ts'
+
+initTheme()
 
 // Android hardware back button: navigate back in-app, exit at the root.
 if (Capacitor.isNativePlatform()) {

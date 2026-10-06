@@ -20,6 +20,16 @@ interface BarChartProps {
 
 const W = 720
 const M = { top: 12, right: 8, bottom: 26, left: 58 }
+
+/**
+ * Centres the tooltip on its bar, but near either edge anchors it to that side instead,
+ * so on a phone it never hangs off the screen.
+ */
+function tooltipPosition(percent: number) {
+  if (percent < 30) return { left: `${percent}%`, transform: 'translateX(-20%)' }
+  if (percent > 70) return { left: `${percent}%`, transform: 'translateX(-80%)' }
+  return { left: `${percent}%` }
+}
 const MAX_BAR = 24
 const GAP = 2
 const MAX_X_LABELS = 12
@@ -117,7 +127,7 @@ export function BarChart({ title, labels, series, format, formatTick = format, h
       {active !== null && (
         <div
           className="chart__tooltip"
-          style={{ left: `${((M.left + slot * (active + 0.5)) / W) * 100}%` }}
+          style={tooltipPosition(((M.left + slot * (active + 0.5)) / W) * 100)}
           role="status"
         >
           <span className="chart__tooltip-title">{labels[active]}</span>
