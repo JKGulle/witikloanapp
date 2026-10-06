@@ -10,13 +10,13 @@ export const CONTRACT_VERSION = 'v1'
 
 /** Shown in the contract. Replace every [bracketed] placeholder with the registered details. */
 export const LENDER = {
-  name: '[REGISTERED COMPANY NAME]',
+  name: 'WITIK LENDING',
   tradeName: 'Witik Loan',
   secRegistration: '[SEC REGISTRATION NO.]',
   certificateOfAuthority: '[CERTIFICATE OF AUTHORITY NO.]',
-  address: '[REGISTERED OFFICE ADDRESS]',
-  email: '[SUPPORT EMAIL]',
-  venue: '[CITY]',
+  address: 'Purok 7, Cogtong, Candijay, Bohol, Philippines',
+  email: 'support@witiklending.com',
+  venue: 'Candijay, Bohol, Philippines',
 }
 
 /** True while any lender detail is still a placeholder (shown as a warning to staff). */
