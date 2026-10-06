@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase.ts'
 import { useLoanData } from '../hooks/useLoanData.ts'
-import { formatDate, formatMoney, loanProgress } from '../lib/loan.ts'
+import { formatDate, formatMoney, formatRate, loanProgress } from '../lib/loan.ts'
 import { Card } from '../components/Card.tsx'
 import { Button } from '../components/Button.tsx'
 import { Loader } from '../components/Loader.tsx'
@@ -85,7 +85,7 @@ export function LoanDetailPage() {
           </div>
           <div>
             <dt>Rate</dt>
-            <dd>{Number(app.annual_rate)}% p.a.</dd>
+            <dd>{formatRate(Number(app.annual_rate))}</dd>
           </div>
         </dl>
         {showRepayment && (
@@ -113,6 +113,13 @@ export function LoanDetailPage() {
       )}
       {app.status === 'approved' && (
         <p className="alert alert--info">Approved! Your funds are being prepared for release.</p>
+      )}
+      {app.rate_adjusted_at && (app.status === 'pending' || app.status === 'approved') && (
+        <p className="alert alert--info">
+          Witik set your interest to {formatRate(Number(app.annual_rate))}, so your monthly payment is{' '}
+          {formatMoney(Number(app.monthly_payment))}.
+          {app.status === 'pending' && ' You can still cancel while the application is pending.'}
+        </p>
       )}
 
       {app.status === 'pending' && (

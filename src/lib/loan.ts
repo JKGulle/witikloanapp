@@ -20,6 +20,14 @@ export function annualRateFor(termMonths: number): number {
   return 18
 }
 
+/** Admin-adjusted monthly rate bounds (%). Must stay in sync with admin_set_interest_rate(). */
+export const RATE_LIMITS = { minMonthly: 0.1, maxMonthly: 6 } as const
+
+/** "15% p.a. · 1.25%/mo" */
+export function formatRate(annualRatePct: number): string {
+  return `${annualRatePct}% p.a. · ${round2(annualRatePct / 12)}%/mo`
+}
+
 const round2 = (n: number) => Math.round(n * 100) / 100
 
 export function monthlyPayment(principal: number, annualRatePct: number, months: number): number {
@@ -96,8 +104,7 @@ export function amortizationSchedule(
   return rows
 }
 
-export function loanQuote(principal: number, months: number) {
-  const annualRate = annualRateFor(months)
+export function loanQuote(principal: number, months: number, annualRate = annualRateFor(months)) {
   const schedule = amortizationSchedule(principal, annualRate, months, new Date())
   const totalPayable = round2(schedule.reduce((sum, row) => sum + row.payment, 0))
   return {

@@ -17,14 +17,21 @@ export function DashboardPage() {
   const { user } = useAuth()
   const { kycStatus } = useBorrowerShell()
   const { applications, payments, penalties, loading, error } = useLoanData()
-  const income = useQuery(async () => {
+  const offerInputs = useQuery(async () => {
     if (!user) return null
-    const { data } = await supabase.from('profiles').select('monthly_income').eq('id', user.id).maybeSingle()
-    const value = Number(data?.monthly_income ?? 0)
-    return value > 0 ? value : null
+    const { data } = await supabase
+      .from('profiles')
+      .select('monthly_income, offer_amount, offer_note')
+      .eq('id', user.id)
+      .maybeSingle()
+    const income = Number(data?.monthly_income ?? 0)
+    return {
+      income: income > 0 ? income : null,
+      adminOffer: data?.offer_amount ? { amount: Number(data.offer_amount), note: data.offer_note as string | null } : null,
+    }
   }, [user?.id])
 
-  if (loading || income.loading) return <Loader label="Loading your dashboard" />
+  if (loading || offerInputs.loading) return <Loader label="Loading your dashboard" />
 
   const firstName = String(user?.user_metadata?.full_name ?? '').split(' ')[0]
   const overdue = applications
@@ -58,7 +65,11 @@ export function DashboardPage() {
         </Link>
       ))}
 
-      <LoanOfferCard monthlyIncome={income.data ?? null} overdueLoan={overdue[0]?.app ?? null} />
+      <LoanOfferCard
+        monthlyIncome={offerInputs.data?.income ?? null}
+        adminOffer={offerInputs.data?.adminOffer ?? null}
+        overdueLoan={overdue[0]?.app ?? null}
+      />
 
       {runningLoans.length > 0 && (
         <section className="stack">

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { supabase } from '../../lib/supabase.ts'
+import { useAuth } from '../../auth/auth-context.ts'
 import { unwrap, useQuery } from '../../hooks/useQuery.ts'
 import { idTypeLabel } from '../../lib/kyc.ts'
 import { EMPLOYMENT_LABELS, formatDateTime } from '../../lib/staff.ts'
@@ -11,6 +12,7 @@ import { Loader } from '../../components/Loader.tsx'
 import { StatusPill } from '../../components/StatusPill.tsx'
 import { KycReview } from '../../components/KycReview.tsx'
 import { VerifiedBadge } from '../../components/VerifiedBadge.tsx'
+import { AdminLoanOffer } from '../../components/AdminLoanOffer.tsx'
 import { ArrowLeftIcon, ChevronRightIcon } from '../../components/icons.tsx'
 
 type QueueRow = KycSubmission & { profile: Pick<Profile, 'full_name' | 'phone' | 'kyc_status'> | null }
@@ -97,6 +99,8 @@ export function VerificationsPage() {
 /** One borrower's documents and details side by side, with verify / reject. */
 export function VerificationDetailPage() {
   const { userId = '' } = useParams()
+  const { role } = useAuth()
+  const [notice, setNotice] = useState<string | null>(null)
   const { data, error, loading, reload } = useQuery(async () => {
     const found = unwrap(await supabase.from('profiles').select('*').eq('id', userId).maybeSingle()) as Profile | null
     if (!found) throw new Error('Borrower not found, or they have not submitted an ID yet.')
@@ -132,6 +136,8 @@ export function VerificationDetailPage() {
         <StatusPill status={profile.kyc_status} />
       </div>
 
+      {notice && <p className="alert alert--info">{notice}</p>}
+
       <div className="grid-2">
         <Card className="stack">
           <h2 className="h3">Profile details</h2>
@@ -157,6 +163,17 @@ export function VerificationDetailPage() {
           <KycReview userId={profile.id} status={profile.kyc_status} canReview onChanged={reload} />
         </Card>
       </div>
+
+      {role === 'admin' && (
+        <AdminLoanOffer
+          key={profile.offer_set_at ?? 'none'}
+          profile={profile}
+          onChanged={async (message) => {
+            setNotice(message)
+            await reload()
+          }}
+        />
+      )}
     </div>
   )
 }

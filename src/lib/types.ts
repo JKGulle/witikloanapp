@@ -13,6 +13,11 @@ export interface Profile {
   employment_status: EmploymentStatus | null
   monthly_income: number | null
   kyc_status: KycStatus
+  /** Set by an admin. When present it caps what the borrower can apply for. */
+  offer_amount: number | null
+  offer_note: string | null
+  offer_set_by: string | null
+  offer_set_at: string | null
   created_at: string
   updated_at: string
 }
@@ -35,6 +40,9 @@ export interface LoanApplication {
   assigned_at: string | null
   decision_reason: string | null
   decided_by: string | null
+  /** Set when an admin changed the rate from the standard one for the term. */
+  rate_adjusted_by: string | null
+  rate_adjusted_at: string | null
 }
 
 export type IdType = 'philsys' | 'passport' | 'drivers_license' | 'umid' | 'sss' | 'prc' | 'postal' | 'voters'

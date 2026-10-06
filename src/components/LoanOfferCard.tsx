@@ -12,14 +12,17 @@ const SAMPLE_AMOUNT = 20_000
 const applyLink = (amount: number, term: number) => `/apply?amount=${amount}&term=${term}`
 
 /**
- * Home-screen offer. Amounts come from the borrower's income and the app's 40%
- * affordability rule — an estimate, never a promise of approval.
+ * Home-screen offer. An admin's offer for this borrower wins; otherwise amounts
+ * come from the borrower's income and the app's 40% affordability rule — an
+ * estimate, never a promise of approval.
  */
 export function LoanOfferCard({
   monthlyIncome,
+  adminOffer,
   overdueLoan,
 }: {
   monthlyIncome: number | null
+  adminOffer: { amount: number; note: string | null } | null
   overdueLoan: LoanApplication | null
 }) {
   if (overdueLoan) {
@@ -37,6 +40,8 @@ export function LoanOfferCard({
       </Card>
     )
   }
+
+  if (adminOffer) return <AdminOfferCard {...adminOffer} />
 
   const personalised = monthlyIncome !== null && monthlyIncome > 0
   const options = OFFER_TERMS.map((term) => {
@@ -103,6 +108,55 @@ export function LoanOfferCard({
           ? `Estimate based on your monthly income, keeping payments within ${AFFORDABILITY_RATIO * 100}% of it. `
           : 'Add your monthly income in Profile to see how much you can borrow. '}
         Approval depends on identity verification and a credit investigation.
+      </p>
+    </Card>
+  )
+}
+
+/** An amount an admin offered this borrower. Applications above it are refused. */
+function AdminOfferCard({ amount, note }: { amount: number; note: string | null }) {
+  const featured = { term: FEATURED_TERM, quote: loanQuote(amount, FEATURED_TERM) }
+
+  return (
+    <Card tone="accent" className="offer">
+      <div className="offer__head">
+        <span className="offer__icon" aria-hidden="true">
+          <SparkIcon />
+        </span>
+        <span className="eyebrow">Your Witik offer</span>
+      </div>
+
+      <div className="offer__headline">
+        <span className="muted">Borrow up to</span>
+        <span className="offer__amount">{formatMoney(amount, true)}</span>
+        <span className="muted small">
+          {formatMoney(featured.quote.payment)}/month for {featured.term} months at {featured.quote.annualRate}% p.a.
+        </span>
+      </div>
+
+      <div className="offer__options" role="list">
+        {OFFER_TERMS.map((term) => (
+          <Link
+            key={term}
+            to={applyLink(amount, term)}
+            role="listitem"
+            className={term === featured.term ? 'offer__option is-featured' : 'offer__option'}
+          >
+            <span className="offer__option-term">{term} months</span>
+            <strong>{formatMoney(amount, true)}</strong>
+            <span className="small">{formatMoney(loanQuote(amount, term).payment)}/mo</span>
+          </Link>
+        ))}
+      </div>
+
+      <Link to={applyLink(amount, featured.term)} className="btn btn--primary btn--block">
+        <span className="btn__label">Apply now</span>
+      </Link>
+
+      <p className="offer__fineprint">
+        {note ? `${note} ` : ''}
+        Offered to you by Witik — you can borrow any amount up to this. Approval still depends on identity
+        verification and a credit investigation.
       </p>
     </Card>
   )

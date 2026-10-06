@@ -20,14 +20,14 @@ function fromParam(raw: string | null, min: number, max: number, step: number, f
 }
 
 function fillPercent(value: number, min: number, max: number) {
-  return { '--fill': `${((value - min) / (max - min)) * 100}%` } as CSSProperties
+  return { '--fill': `${max > min ? ((value - min) / (max - min)) * 100 : 100}%` } as CSSProperties
 }
 
 export function ApplyPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [params] = useSearchParams()
-  const [amount, setAmount] = useState(() =>
+  const [requestedAmount, setAmount] = useState(() =>
     fromParam(params.get('amount'), LOAN_LIMITS.minAmount, LOAN_LIMITS.maxAmount, LOAN_LIMITS.amountStep, 20_000),
   )
   const [term, setTerm] = useState(() => fromParam(params.get('term'), LOAN_LIMITS.minTerm, LOAN_LIMITS.maxTerm, 1, 12))
@@ -49,6 +49,10 @@ export function ApplyPage() {
       .then(({ data }) => setProfile(data as Profile | null))
   }, [user])
 
+  // An admin's offer caps the amount; the database refuses anything above it too.
+  const offer = profile?.offer_amount ? Number(profile.offer_amount) : null
+  const maxAmount = offer ?? LOAN_LIMITS.maxAmount
+  const amount = Math.min(requestedAmount, maxAmount)
   const quote = loanQuote(amount, term)
   const profileComplete = Boolean(profile?.full_name && profile?.monthly_income && profile?.phone)
   const income = Number(profile?.monthly_income ?? 0)
@@ -108,16 +112,17 @@ export function ApplyPage() {
             type="range"
             className="range"
             min={LOAN_LIMITS.minAmount}
-            max={LOAN_LIMITS.maxAmount}
+            max={maxAmount}
             step={LOAN_LIMITS.amountStep}
             value={amount}
             onChange={(e) => setAmount(Number(e.target.value))}
-            style={fillPercent(amount, LOAN_LIMITS.minAmount, LOAN_LIMITS.maxAmount)}
+            style={fillPercent(amount, LOAN_LIMITS.minAmount, maxAmount)}
           />
           <span className="field__row muted small">
             <span>{formatMoney(LOAN_LIMITS.minAmount, true)}</span>
-            <span>{formatMoney(LOAN_LIMITS.maxAmount, true)}</span>
+            <span>{formatMoney(maxAmount, true)}</span>
           </span>
+          {offer !== null && <span className="muted small">Witik has offered you up to {formatMoney(offer, true)}.</span>}
         </label>
 
         <label className="field">

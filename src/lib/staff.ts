@@ -33,6 +33,7 @@ const ACTION_LABELS: Record<string, string> = {
   'investigation.submitted': 'Submitted investigation',
   'application.approved': 'Approved application',
   'application.rejected': 'Rejected application',
+  'application.rate_adjusted': 'Adjusted interest rate',
   'loan.disbursed': 'Released loan',
   'payment.recorded': 'Recorded payment',
   'payment.submitted': 'Submitted e-wallet payment',
@@ -49,6 +50,8 @@ const ACTION_LABELS: Record<string, string> = {
   'kyc.rejected': 'Rejected KYC',
   'kyc.pending': 'Set KYC to pending',
   'kyc.unverified': 'Reset KYC',
+  'offer.set': 'Set loan offer',
+  'offer.removed': 'Removed loan offer',
 }
 
 export function describeAction(entry: AuditEntry): string {

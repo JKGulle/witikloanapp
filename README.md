@@ -35,7 +35,7 @@ A cross-platform loan app (Web · Android · iOS) built with **React + TypeScrip
 | Platform | Command | Requires |
 |---|---|---|
 | Android | `npm run android` | Android Studio |
-| iOS | `npx cap add ios` (once), then `npm run ios` | macOS + Xcode |
+| iOS | `npm run ios` (the `ios/` project is already added; it uses Swift Package Manager, so no CocoaPods) | macOS + Xcode |
 
 After any web change, run `npm run cap:sync` to copy the build into the native projects.
 
@@ -46,7 +46,7 @@ Staff sign in on the same login screen and are routed to the admin console autom
 
 | Role | Can do |
 |---|---|
-| **Admin** | Overview metrics · assign credit investigators · approve/reject · disburse · record payments · verify KYC · create/deactivate staff · read the audit log |
+| **Admin** | Overview metrics · assign credit investigators · approve/reject · disburse · record payments · verify KYC · create/deactivate staff · read the audit log · offer a borrower a specific amount (shown on their home screen; they can't apply above it — requires `20261006000000_admin_loan_offers.sql`) · adjust a loan's monthly interest (0.10–6.00%) before release; the payment is recalculated and the rate locks at release — requires `20261006010000_admin_interest_rate.sql` |
 | **Credit Investigator** | Verify, reject or re-open **any** borrower's identity (KYC) from **Verifications**, same as admins · see only loan applications assigned to them · file an investigation report (employment/income/residence checks, risk rating, recommendation) |
 | **Cashier** | Release approved loans and record repayments (incl. penalties) · sees only approved, active and paid loans and those borrowers' contact details · no pending applications, ID photos, investigations, staff list or audit log. Each release/payment records who handled it (`disbursed_by`, `received_by`). Admins can also release and record payments as a backup. Checks borrowers' GCash/Maya receipts under **E-wallet**. Requires `20261002040000_cashier_role.sql`. |
 

@@ -125,13 +125,14 @@ export const FAQ: FaqSection[] = [
       {
         q: 'What interest rate will I pay?',
         a: [
-          'The rate depends only on the term you choose:',
+          'The standard rate depends on the term you choose:',
           [
             `Up to 6 months: ${annualRateFor(6)}% per year`,
             `7 to 12 months: ${annualRateFor(12)}% per year`,
             `13 to ${LOAN_LIMITS.maxTerm} months: ${annualRateFor(LOAN_LIMITS.maxTerm)}% per year`,
           ],
-          'The rate is fixed for the whole loan and is shown before you submit.',
+          'Witik may adjust the rate on your application before the money is released. If it changes, your loan page shows the new rate and monthly payment before release.',
+          'Once your loan is released, the rate is fixed for the whole loan.',
         ],
       },
       {

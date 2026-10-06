@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { supabase } from '../../lib/supabase.ts'
 import { useAuth } from '../../auth/auth-context.ts'
 import { unwrap, useQuery } from '../../hooks/useQuery.ts'
-import { formatDate, formatMoney, loanProgress } from '../../lib/loan.ts'
+import { RATE_LIMITS, formatDate, formatMoney, formatRate, loanProgress, loanQuote } from '../../lib/loan.ts'
 import { EMPLOYMENT_LABELS, QUEUE_TITLES, STAFF_APPLICATION_SELECT, formatDateTime } from '../../lib/staff.ts'
 import type { Investigation, Payment, Recommendation, RiskRating, Staff, StaffApplication } from '../../lib/types.ts'
 import { Card } from '../../components/Card.tsx'
@@ -17,6 +17,7 @@ import { OverdueAlert, PenaltyBreakdown } from '../../components/PenaltySummary.
 import { amountDueNow, fetchPenaltyStatus, type PenaltyStatus } from '../../lib/penalty.ts'
 import { PaymentSubmissionReview } from '../../components/PaymentSubmissionReview.tsx'
 import { StaffCollateralCard } from '../../components/AtmCollateral.tsx'
+import { AdminLoanOffer } from '../../components/AdminLoanOffer.tsx'
 
 interface Detail {
   app: StaffApplication
@@ -112,7 +113,10 @@ export function AdminApplicationDetailPage() {
             <dt>Term</dt>
             <dd>{app.term_months} months</dd>
             <dt>Rate</dt>
-            <dd>{Number(app.annual_rate)}% p.a.</dd>
+            <dd>
+              {formatRate(Number(app.annual_rate))}
+              {app.rate_adjusted_at ? ' · adjusted' : ''}
+            </dd>
             <dt>Monthly</dt>
             <dd>{formatMoney(Number(app.monthly_payment))}</dd>
             <dt>Total payable</dt>
@@ -176,6 +180,18 @@ export function AdminApplicationDetailPage() {
         </Card>
       </div>
 
+      {isAdmin && profile && (
+        <AdminLoanOffer
+          key={profile.offer_set_at ?? 'none'}
+          profile={profile}
+          onChanged={async (message) => {
+            setActionError(null)
+            setNotice(message)
+            await reload()
+          }}
+        />
+      )}
+
       {isAdmin && isPending && (
         <AssignCard
           app={app}
@@ -205,6 +221,21 @@ export function AdminApplicationDetailPage() {
         />
       ) : (
         app.investigation && <InvestigationSummary investigation={app.investigation} />
+      )}
+
+      {isAdmin && (isPending || app.status === 'approved') && (
+        <InterestRateCard
+          key={`${app.annual_rate}-${app.rate_adjusted_at ?? ''}`}
+          app={app}
+          busy={busy}
+          onSet={(monthlyRate) =>
+            run(
+              monthlyRate === null ? 'rate-reset' : 'rate',
+              monthlyRate === null ? 'Interest reset to the standard rate.' : `Interest set to ${monthlyRate}% a month.`,
+              () => supabase.rpc('admin_set_interest_rate', { p_application_id: app.id, p_monthly_rate: monthlyRate }),
+            )
+          }
+        />
       )}
 
       {isAdmin && isPending && (
@@ -507,6 +538,85 @@ function InvestigationSummary({ investigation }: { investigation: Investigation 
         <dd>{formatDateTime(investigation.submitted_at)}</dd>
       </dl>
       {investigation.notes && <p className="notes">{investigation.notes}</p>}
+    </Card>
+  )
+}
+
+function InterestRateCard({
+  app,
+  busy,
+  onSet,
+}: {
+  app: StaffApplication
+  busy: string | null
+  onSet: (monthlyRate: number | null) => void
+}) {
+  const currentMonthly = Math.round((Number(app.annual_rate) / 12) * 100) / 100
+  const [rate, setRate] = useState(String(currentMonthly))
+  const value = Number(rate)
+  const valid =
+    rate !== '' &&
+    value >= RATE_LIMITS.minMonthly &&
+    value <= RATE_LIMITS.maxMonthly &&
+    Math.abs(Math.round(value * 100) - value * 100) < 1e-6
+  const amount = Number(app.amount)
+  const preview = valid ? loanQuote(amount, app.term_months, Math.round(value * 12 * 100) / 100) : null
+  const standard = loanQuote(amount, app.term_months)
+
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    if (valid && window.confirm(`Set this loan's interest to ${value}% a month?`)) onSet(value)
+  }
+
+  return (
+    <Card className="stack">
+      <div className="section-head">
+        <h2 className="h3">Interest rate</h2>
+        {app.rate_adjusted_at && <span className="muted small">Adjusted {formatDateTime(app.rate_adjusted_at)}</span>}
+      </div>
+      <p className="muted small">
+        Currently {formatRate(Number(app.annual_rate))}. Standard for {app.term_months} months is{' '}
+        {formatRate(standard.annualRate)}. The rate locks when the loan is released.
+      </p>
+      <form className="stack" onSubmit={handleSubmit}>
+        <label className="field">
+          <span>
+            Monthly interest (%) — {RATE_LIMITS.minMonthly} to {RATE_LIMITS.maxMonthly}
+          </span>
+          <input
+            className="input"
+            type="number"
+            inputMode="decimal"
+            min={RATE_LIMITS.minMonthly}
+            max={RATE_LIMITS.maxMonthly}
+            step="0.01"
+            value={rate}
+            onChange={(e) => setRate(e.target.value)}
+            required
+          />
+        </label>
+        {preview && (
+          <p className="muted small">
+            {formatMoney(preview.payment)}/month · {formatMoney(preview.totalInterest)} total interest ·{' '}
+            {formatMoney(preview.totalPayable)} total payable
+          </p>
+        )}
+        <div className="button-row">
+          <Button type="submit" loading={busy === 'rate'} disabled={!valid || value === currentMonthly || busy !== null}>
+            Set rate
+          </Button>
+          {app.rate_adjusted_at && (
+            <Button
+              variant="ghost"
+              loading={busy === 'rate-reset'}
+              disabled={busy !== null}
+              onClick={() => window.confirm('Reset to the standard rate for this term?') && onSet(null)}
+            >
+              Reset to standard
+            </Button>
+          )}
+        </div>
+      </form>
     </Card>
   )
 }
